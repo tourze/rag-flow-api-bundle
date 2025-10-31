@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  # DataFixtures 服务配置 - 仅允许配置 DataFixtures 相关服务
+  Tourze\RAGFlowApiBundle\DataFixtures\:
+    resource: '../../DataFixtures/'

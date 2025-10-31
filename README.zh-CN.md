@@ -2,48 +2,48 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-A Symfony Bundle for RAGFlow API integration, providing a comprehensive PHP interface for RAGFlow's AI-powered document processing and retrieval capabilities.
+用于 RAGFlow API 集成的 Symfony Bundle，为 RAGFlow 的 AI 驱动文档处理和检索功能提供全面的 PHP 接口。
 
-## Features
+## 特性
 
-- **Multi-instance Management**: Support multiple RAGFlow instances with configuration management
-- **HTTP Client Integration**: Built on robust http-client-bundle for reliable API communication
-- **Complete API Coverage**: Full coverage of RAGFlow's dataset, document, chunk, and conversation APIs
-- **Service Layer Architecture**: Clean service layer abstraction over raw API calls
-- **Type Safety**: PHP 8.1+ with strict typing and comprehensive PHPDoc annotations
-- **Command Line Tools**: Symfony Commands for administration and testing
-- **EasyAdmin Integration**: Admin interface for instance management
+- **多实例管理**: 支持配置管理多个 RAGFlow 实例
+- **HTTP 客户端集成**: 基于强大的 http-client-bundle 构建，确保可靠的 API 通信
+- **完整的 API 覆盖**: 全面覆盖 RAGFlow 的数据集、文档、文档块和对话 API
+- **服务层架构**: 在原始 API 调用之上提供清洁的服务层抽象
+- **类型安全**: PHP 8.1+ 严格类型和全面的 PHPDoc 注解
+- **命令行工具**: 用于管理和测试的 Symfony 命令
+- **EasyAdmin 集成**: 实例管理的管理界面
 
-## Installation
+## 安装
 
 ```bash
 composer require tourze/rag-flow-api-bundle
 ```
 
-## Quick Start
+## 快速开始
 
-### 1. Configure RAGFlow Instance
+### 1. 配置 RAGFlow 实例
 
 ```php
-// Get instance manager from container
+// 从容器获取实例管理器
 $instanceManager = $container->get('Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface');
 
-// Create a new instance
+// 创建新实例
 $instance = $instanceManager->createInstance([
     'name' => 'production-ragflow',
     'api_url' => 'https://ragflow.example.com/api',
     'api_key' => 'your_api_key',
-    'description' => 'Production RAGFlow instance'
+    'description' => '生产环境 RAGFlow 实例'
 ]);
 ```
 
-### 2. Basic API Usage
+### 2. 基本 API 使用
 
 ```php
-// Get default client
+// 获取默认客户端
 $client = $instanceManager->getDefaultClient();
 
-// Create a dataset
+// 创建数据集
 $dataset = $client->datasets()->create([
     'name' => 'knowledge_base',
     'language' => 'Chinese',
@@ -52,154 +52,154 @@ $dataset = $client->datasets()->create([
     'embedding_model' => 'BAAI/bge-large-zh-v1.5@BAAI'
 ]);
 
-// Upload documents
+// 上传文档
 $documents = $client->documents()->upload($dataset['id'], [
     'file1.pdf' => '/path/to/document.pdf',
     'file2.txt' => '/path/to/document.txt'
 ]);
 
-// Parse documents
+// 解析文档
 foreach ($documents['data'] as $document) {
     $client->documents()->parse($dataset['id'], $document['id']);
 }
 ```
 
-## API Services
+## API 服务
 
-### Dataset Management
+### 数据集管理
 
 ```php
 $datasetService = $client->datasets();
 
-// Create dataset
+// 创建数据集
 $dataset = $datasetService->create([
     'name' => 'my_dataset',
-    'language' => 'English'
+    'language' => 'Chinese'
 ]);
 
-// List datasets
+// 列出数据集
 $datasets = $datasetService->list(['page' => 1, 'page_size' => 10]);
 
-// Update dataset
+// 更新数据集
 $datasetService->update($datasetId, ['name' => 'updated_name']);
 
-// Delete dataset
+// 删除数据集
 $datasetService->delete($datasetId);
 
-// Get knowledge graph
+// 获取知识图谱
 $graph = $datasetService->getKnowledgeGraph($datasetId);
 ```
 
-### Document Management
+### 文档管理
 
 ```php
 $documentService = $client->documents();
 
-// Upload documents
+// 上传文档
 $result = $documentService->upload($datasetId, [
     'document.pdf' => '/local/path/document.pdf'
 ]);
 
-// List documents
+// 列出文档
 $documents = $documentService->list($datasetId, ['status' => 'parsed']);
 
-// Parse document
+// 解析文档
 $documentService->parse($datasetId, $documentId, ['run' => 'yes']);
 
-// Get parse status
+// 获取解析状态
 $status = $documentService->getParseStatus($datasetId, $documentId);
 
-// Delete document
+// 删除文档
 $documentService->delete($datasetId, $documentId);
 ```
 
-### Chunk Management
+### 文档块管理
 
 ```php
 $chunkService = $client->chunks();
 
-// Retrieve chunks
-$chunks = $chunkService->retrieve($datasetId, 'search query', [
+// 检索文档块
+$chunks = $chunkService->retrieve($datasetId, '搜索查询', [
     'similarity_threshold' => 0.3,
     'vector_similarity_weight' => 0.3,
     'top_k' => 1024
 ]);
 
-// Add chunks
+// 添加文档块
 $chunkService->add($datasetId, [
-    ['content_with_weight' => 'chunk content', 'weight' => 0.7]
+    ['content_with_weight' => '文档块内容', 'weight' => 0.7]
 ]);
 
-// Update chunk
+// 更新文档块
 $chunkService->update($datasetId, $chunkId, [
-    'content_with_weight' => 'updated content'
+    'content_with_weight' => '更新的内容'
 ]);
 
-// Delete chunk
+// 删除文档块
 $chunkService->delete($datasetId, $chunkId);
 ```
 
-### Conversation Management
+### 对话管理
 
 ```php
 $conversationService = $client->conversations();
 
-// Create conversation
+// 创建对话
 $conversation = $conversationService->create(
-    'My Conversation',
+    '我的对话',
     $datasetId,
     ['model' => 'gpt-4']
 );
 
-// Send message
+// 发送消息
 $response = $conversationService->sendMessage(
     $conversation['id'],
-    'Hello, what can you tell me about this dataset?'
+    '你好，能告诉我关于这个数据集的信息吗？'
 );
 
-// Get conversation history
+// 获取对话历史
 $history = $conversationService->getHistory($conversation['id']);
 
-// Chat completion
+// 聊天补全
 $completion = $conversationService->chatCompletion(
     [
-        ['role' => 'user', 'content' => 'Question about the documents?']
+        ['role' => 'user', 'content' => '关于文档的问题？']
     ],
     $conversation['id']
 );
 ```
 
-## Command Line Tools
+## 命令行工具
 
-### Instance Management
+### 实例管理
 
 ```bash
-# Add RAGFlow instance
+# 添加 RAGFlow 实例
 php bin/console rag-flow:instance:add \
     --name=production \
     --url=https://ragflow.example.com/api \
     --key=your_api_key
 
-# List instances
+# 列出实例
 php bin/console rag-flow:instance:list
 
-# Test instance connectivity
+# 测试实例连接
 php bin/console rag-flow:instance:test production
 
-# Health check
+# 健康检查
 php bin/console rag-flow:health:check
 ```
 
-### Dataset Operations
+### 数据集操作
 
 ```bash
-# List datasets
+# 列出数据集
 php bin/console rag-flow:dataset:list
 ```
 
-## Configuration
+## 配置
 
-The bundle automatically registers services when enabled. For custom configuration:
+Bundle 启用时会自动注册服务。自定义配置：
 
 ```yaml
 # config/packages/rag_flow_api.yaml
@@ -213,7 +213,7 @@ rag_flow_api:
             enabled: true
 ```
 
-## Environment Variables
+## 环境变量
 
 ```bash
 # .env
@@ -221,7 +221,7 @@ RAGFLOW_API_URL=https://ragflow.example.com/api
 RAGFLOW_API_KEY=your_secret_api_key
 ```
 
-## Error Handling
+## 错误处理
 
 ```php
 use Tourze\RAGFlowApiBundle\Exception\RAGFlowApiException;
@@ -229,36 +229,36 @@ use Tourze\RAGFlowApiBundle\Exception\RAGFlowApiException;
 try {
     $dataset = $client->datasets()->create($config);
 } catch (RAGFlowApiException $e) {
-    // Handle API errors
-    echo "API Error: " . $e->getMessage();
-    echo "Response Code: " . $e->getCode();
+    // 处理 API 错误
+    echo "API 错误: " . $e->getMessage();
+    echo "响应代码: " . $e->getCode();
 }
 ```
 
-## Testing
+## 测试
 
-Run the test suite:
+运行测试套件：
 
 ```bash
 ./vendor/bin/phpunit packages/rag-flow-api-bundle/tests/
 ```
 
-Run PHPStan analysis:
+运行 PHPStan 分析：
 
 ```bash
 php -d memory_limit=2G ./vendor/bin/phpstan analyse packages/rag-flow-api-bundle/src/
 ```
 
-## Requirements
+## 要求
 
 - PHP 8.1+
 - Symfony 7.3+
-- A running RAGFlow instance
+- 运行中的 RAGFlow 实例
 
-## License
+## 许可证
 
 MIT License
 
-## Contributing
+## 贡献
 
-Please submit Pull Requests and Issues to help improve this bundle.
+请提交 Pull Request 和 Issue 来帮助改进这个 Bundle。
