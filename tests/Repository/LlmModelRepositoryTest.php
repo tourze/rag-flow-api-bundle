@@ -564,7 +564,7 @@ class LlmModelRepositoryTest extends AbstractRepositoryTestCase
         $this->persistAndFlush($model2);
 
         // 验证创建的模型数量
-        $totalModelsBefore = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $totalModelsBefore = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
         $this->assertGreaterThanOrEqual(3, $totalModelsBefore);
 
         // 测试删除第一个实例的所有模型
@@ -572,16 +572,16 @@ class LlmModelRepositoryTest extends AbstractRepositoryTestCase
         $this->assertEquals(2, $deletedCount);
 
         // 验证第一个实例的模型已被删除
-        $instance1ModelsAfter = $this->getEntityManagerInstance()->getRepository(LlmModel::class)->findBy(['ragFlowInstance' => $instance1]);
+        $instance1ModelsAfter = self::getEntityManager()->getRepository(LlmModel::class)->findBy(['ragFlowInstance' => $instance1]);
         $this->assertEmpty($instance1ModelsAfter);
 
         // 验证第二个实例的模型仍然存在
-        $instance2ModelsAfter = $this->getEntityManagerInstance()->getRepository(LlmModel::class)->findBy(['ragFlowInstance' => $instance2]);
+        $instance2ModelsAfter = self::getEntityManager()->getRepository(LlmModel::class)->findBy(['ragFlowInstance' => $instance2]);
         $this->assertCount(1, $instance2ModelsAfter);
         $this->assertEquals('Instance2-Model-1', $instance2ModelsAfter[0]->getLlmName());
 
         // 验证总模型数量减少
-        $totalModelsAfter = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $totalModelsAfter = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
         $this->assertEquals($totalModelsBefore - 2, $totalModelsAfter);
     }
 

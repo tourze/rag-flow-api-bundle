@@ -62,14 +62,14 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $ragFlowInstance->setName('测试实例');
         $ragFlowInstance->setApiUrl('http://localhost:9380');
         $ragFlowInstance->setApiKey('test-key');
-        $this->getEntityManagerInstance()->persist($ragFlowInstance);
+        self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建另一个RAGFlow实例
         $otherInstance = new RAGFlowInstance();
         $otherInstance->setName('其他实例');
         $otherInstance->setApiUrl('http://localhost:9381');
         $otherInstance->setApiKey('other-key');
-        $this->getEntityManagerInstance()->persist($otherInstance);
+        self::getEntityManager()->persist($otherInstance);
 
         // 为第一个实例创建智能体
         for ($i = 1; $i <= 3; ++$i) {
@@ -79,7 +79,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
             $agent->setDsl(['type' => 'test', 'id' => $i]);
             $agent->setRagFlowInstance($ragFlowInstance);
             $agent->setStatus('active');
-            $this->getEntityManagerInstance()->persist($agent);
+            self::getEntityManager()->persist($agent);
         }
 
         // 为第二个实例创建智能体
@@ -89,9 +89,9 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $otherAgent->setDsl(['type' => 'other']);
         $otherAgent->setRagFlowInstance($otherInstance);
         $otherAgent->setStatus('active');
-        $this->getEntityManagerInstance()->persist($otherAgent);
+        self::getEntityManager()->persist($otherAgent);
 
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->flush();
 
         // 测试查找第一个实例的智能体
         $agents = $this->repository->findByInstance($ragFlowInstance);
@@ -113,7 +113,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $ragFlowInstance->setName('测试实例');
         $ragFlowInstance->setApiUrl('http://localhost:9380');
         $ragFlowInstance->setApiKey('test-key');
-        $this->getEntityManagerInstance()->persist($ragFlowInstance);
+        self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建需要同步的智能体（没有remoteId）
         $agentWithoutRemoteId = new RAGFlowAgent();
@@ -121,7 +121,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $agentWithoutRemoteId->setDsl(['type' => 'test']);
         $agentWithoutRemoteId->setRagFlowInstance($ragFlowInstance);
         $agentWithoutRemoteId->setStatus('active');
-        $this->getEntityManagerInstance()->persist($agentWithoutRemoteId);
+        self::getEntityManager()->persist($agentWithoutRemoteId);
 
         // 创建需要同步的智能体（同步失败状态）
         $syncFailedAgent = new RAGFlowAgent();
@@ -130,7 +130,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $syncFailedAgent->setRemoteId('remote-id-123');
         $syncFailedAgent->setRagFlowInstance($ragFlowInstance);
         $syncFailedAgent->setStatus('sync_failed');
-        $this->getEntityManagerInstance()->persist($syncFailedAgent);
+        self::getEntityManager()->persist($syncFailedAgent);
 
         // 创建不需要同步的智能体
         $normalAgent = new RAGFlowAgent();
@@ -139,9 +139,9 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $normalAgent->setRemoteId('remote-id-456');
         $normalAgent->setRagFlowInstance($ragFlowInstance);
         $normalAgent->setStatus('active');
-        $this->getEntityManagerInstance()->persist($normalAgent);
+        self::getEntityManager()->persist($normalAgent);
 
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->flush();
 
         // 测试查找需要同步的智能体
         $agentsNeedingSync = $this->repository->findNeedingSync();
@@ -160,14 +160,14 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $ragFlowInstance->setName('测试实例');
         $ragFlowInstance->setApiUrl('http://localhost:9380');
         $ragFlowInstance->setApiKey('test-key');
-        $this->getEntityManagerInstance()->persist($ragFlowInstance);
+        self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建另一个RAGFlow实例
         $otherInstance = new RAGFlowInstance();
         $otherInstance->setName('其他实例');
         $otherInstance->setApiUrl('http://localhost:9381');
         $otherInstance->setApiKey('other-key');
-        $this->getEntityManagerInstance()->persist($otherInstance);
+        self::getEntityManager()->persist($otherInstance);
 
         $remoteId = 'test-remote-id-123';
 
@@ -178,7 +178,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $agent->setRemoteId($remoteId);
         $agent->setRagFlowInstance($ragFlowInstance);
         $agent->setStatus('active');
-        $this->getEntityManagerInstance()->persist($agent);
+        self::getEntityManager()->persist($agent);
 
         // 为第二个实例创建相同remoteId的智能体
         $otherAgent = new RAGFlowAgent();
@@ -187,9 +187,9 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $otherAgent->setRemoteId($remoteId);
         $otherAgent->setRagFlowInstance($otherInstance);
         $otherAgent->setStatus('active');
-        $this->getEntityManagerInstance()->persist($otherAgent);
+        self::getEntityManager()->persist($otherAgent);
 
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->flush();
 
         // 测试查找第一个实例的智能体
         $foundAgent = $this->repository->findByRemoteId($remoteId, $ragFlowInstance);
@@ -214,7 +214,7 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
         $ragFlowInstance->setName('测试实例');
         $ragFlowInstance->setApiUrl('http://localhost:9380');
         $ragFlowInstance->setApiKey('test-key');
-        $this->getEntityManagerInstance()->persist($ragFlowInstance);
+        self::getEntityManager()->persist($ragFlowInstance);
 
         $statuses = ['draft', 'active', 'inactive', 'sync_failed'];
         $statusCounts = [];
@@ -227,12 +227,12 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
                 $agent->setDsl(['type' => 'test', 'status' => $status]);
                 $agent->setRagFlowInstance($ragFlowInstance);
                 $agent->setStatus($status);
-                $this->getEntityManagerInstance()->persist($agent);
+                self::getEntityManager()->persist($agent);
                 ++$statusCounts[$status];
             }
         }
 
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->flush();
 
         // 测试查找每种状态的智能体
         foreach ($statuses as $status) {

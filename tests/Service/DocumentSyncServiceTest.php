@@ -77,7 +77,7 @@ final class DocumentSyncServiceTest extends AbstractIntegrationTestCase
         $this->documentService->expects($this->once())->method('upload')->with('dataset-sync-123', ['sync-test' => '/tmp/sync-test.txt'], ['sync-test' => 'sync-test'])->willReturn(['data' => [['id' => 'remote-doc-456']]]);
         $this->syncService->syncDocumentToRemote($document, $dataset);
         // 刷新实体以获取最新状态
-        $this->getEntityManagerInstance()->refresh($document);
+        self::getEntityManager()->refresh($document);
         $this->assertSame(DocumentStatus::UPLOADED, $document->getStatus());
         $this->assertSame('remote-doc-456', $document->getRemoteId());
         $this->assertInstanceOf(\DateTimeImmutable::class, $document->getLastSyncTime());
@@ -130,7 +130,7 @@ final class DocumentSyncServiceTest extends AbstractIntegrationTestCase
             // 可能是原始异常或 PHPUnit 包装的异常
             $this->assertStringContainsString('Upload failed', $e->getMessage());
             // 刷新实体以获取最新状态
-            $this->getEntityManagerInstance()->refresh($document);
+            self::getEntityManager()->refresh($document);
             $this->assertSame(DocumentStatus::SYNC_FAILED, $document->getStatus());
         }
     }
@@ -142,7 +142,7 @@ final class DocumentSyncServiceTest extends AbstractIntegrationTestCase
         $this->documentService->expects($this->once())->method('upload')->willReturn(['data' => [['id' => 'remote-retry-999']]]);
         $this->syncService->retryUpload($document, $dataset);
         // 刷新实体以获取最新状态
-        $this->getEntityManagerInstance()->refresh($document);
+        self::getEntityManager()->refresh($document);
         $this->assertSame(DocumentStatus::UPLOADED, $document->getStatus());
         $this->assertSame('remote-retry-999', $document->getRemoteId());
         $this->assertInstanceOf(\DateTimeImmutable::class, $document->getLastSyncTime());
@@ -233,7 +233,7 @@ final class DocumentSyncServiceTest extends AbstractIntegrationTestCase
         $this->syncService->syncDocumentToRemote($document, $dataset);
         // 在同步过程中状态会先设置为 UPLOADING
         // 最终状态应该是 UPLOADED
-        $this->getEntityManagerInstance()->refresh($document);
+        self::getEntityManager()->refresh($document);
         $this->assertSame(DocumentStatus::UPLOADED, $document->getStatus());
         $this->assertNotSame($originalStatus, DocumentStatus::UPLOADED);
     }

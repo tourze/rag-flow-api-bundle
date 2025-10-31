@@ -43,7 +43,7 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
     public function testFindEnabled(): void
     {
         // 清理现有数据以确保测试独立性
-        $this->getEntityManagerInstance()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
+        self::getEntityManager()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
 
         // 创建测试数据
         $enabledInstance = new RAGFlowInstance();
@@ -58,9 +58,9 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
         $disabledInstance->setApiKey('disabled_key');
         $disabledInstance->setEnabled(false);
 
-        $this->getEntityManagerInstance()->persist($enabledInstance);
-        $this->getEntityManagerInstance()->persist($disabledInstance);
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->persist($enabledInstance);
+        self::getEntityManager()->persist($disabledInstance);
+        self::getEntityManager()->flush();
 
         // 测试查询
         $results = $this->repository->findEnabled();
@@ -74,7 +74,7 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
     public function testFindHealthy(): void
     {
         // 清理现有数据以确保测试独立性
-        $this->getEntityManagerInstance()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
+        self::getEntityManager()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
 
         $healthyInstance = new RAGFlowInstance();
         $healthyInstance->setName('healthy-instance-test-' . uniqid());
@@ -83,8 +83,8 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
         $healthyInstance->setEnabled(true);
         $healthyInstance->setHealthy(true);
 
-        $this->getEntityManagerInstance()->persist($healthyInstance);
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->persist($healthyInstance);
+        self::getEntityManager()->flush();
 
         $results = $this->repository->findHealthy();
 
@@ -101,8 +101,8 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
         $instance->setApiKey('check_key');
         $instance->setEnabled(true);
 
-        $this->getEntityManagerInstance()->persist($instance);
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->persist($instance);
+        self::getEntityManager()->flush();
 
         $results = $this->repository->findNeedHealthCheck(30);
 
@@ -144,7 +144,7 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
     public function testFindByNameExists(): void
     {
         // 清理现有数据以确保测试独立性
-        $this->getEntityManagerInstance()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
+        self::getEntityManager()->createQuery('DELETE FROM ' . RAGFlowInstance::class)->execute();
 
         // 创建测试数据
         $uniqueName = 'test-instance-' . uniqid();
@@ -153,8 +153,8 @@ class RAGFlowInstanceRepositoryTest extends AbstractRepositoryTestCase
         $instance->setApiUrl('https://test.com');
         $instance->setApiKey('test_key');
 
-        $this->getEntityManagerInstance()->persist($instance);
-        $this->getEntityManagerInstance()->flush();
+        self::getEntityManager()->persist($instance);
+        self::getEntityManager()->flush();
 
         // 测试查询
         $result = $this->repository->findByName($uniqueName);

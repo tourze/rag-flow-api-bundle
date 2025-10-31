@@ -465,7 +465,7 @@ class ConversationRepositoryTest extends AbstractRepositoryTestCase
         $this->getRepository()->save($conversation);
 
         // 验证对话已保存到数据库
-        $savedConversation = $this->getEntityManagerInstance()->find(Conversation::class, $conversation->getId());
+        $savedConversation = self::getEntityManager()->find(Conversation::class, $conversation->getId());
         $this->assertNotNull($savedConversation);
         $this->assertEquals('remote-conversation-save-test', $savedConversation->getRemoteId());
         $this->assertEquals('测试保存的对话', $savedConversation->getTitle());
@@ -490,14 +490,14 @@ class ConversationRepositoryTest extends AbstractRepositoryTestCase
         $this->assertNotNull($conversationId);
 
         // 验证对话存在
-        $existingConversation = $this->getEntityManagerInstance()->find(Conversation::class, $conversationId);
+        $existingConversation = self::getEntityManager()->find(Conversation::class, $conversationId);
         $this->assertNotNull($existingConversation);
 
         // 测试删除
         $this->getRepository()->remove($conversation);
 
         // 验证对话已从数据库删除
-        $deletedConversation = $this->getEntityManagerInstance()->find(Conversation::class, $conversationId);
+        $deletedConversation = self::getEntityManager()->find(Conversation::class, $conversationId);
         $this->assertNull($deletedConversation);
     }
 

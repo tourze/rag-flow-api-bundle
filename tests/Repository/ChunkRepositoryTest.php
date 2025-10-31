@@ -413,7 +413,7 @@ class ChunkRepositoryTest extends AbstractRepositoryTestCase
         $this->getRepository()->save($chunk);
 
         // 验证文档块已保存到数据库
-        $savedChunk = $this->getEntityManagerInstance()->find(Chunk::class, $chunk->getId());
+        $savedChunk = self::getEntityManager()->find(Chunk::class, $chunk->getId());
         $this->assertNotNull($savedChunk);
         $this->assertEquals('remote-chunk-save-test', $savedChunk->getRemoteId());
         $this->assertEquals('测试保存的文档块', $savedChunk->getContent());
@@ -443,14 +443,14 @@ class ChunkRepositoryTest extends AbstractRepositoryTestCase
         $this->assertNotNull($chunkId);
 
         // 验证文档块存在
-        $existingChunk = $this->getEntityManagerInstance()->find(Chunk::class, $chunkId);
+        $existingChunk = self::getEntityManager()->find(Chunk::class, $chunkId);
         $this->assertNotNull($existingChunk);
 
         // 测试删除
         $this->getRepository()->remove($chunk);
 
         // 验证文档块已从数据库删除
-        $deletedChunk = $this->getEntityManagerInstance()->find(Chunk::class, $chunkId);
+        $deletedChunk = self::getEntityManager()->find(Chunk::class, $chunkId);
         $this->assertNull($deletedChunk);
     }
 }

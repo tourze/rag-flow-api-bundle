@@ -371,7 +371,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->deleteLocalDataset('delete-test-dataset', $this->testInstance);
 
         // Verify it's deleted
-        $deletedDataset = $this->getEntityManagerInstance()->getRepository(Dataset::class)->findOneBy([
+        $deletedDataset = self::getEntityManager()->getRepository(Dataset::class)->findOneBy([
             'remoteId' => 'delete-test-dataset',
         ]);
 
@@ -390,7 +390,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->deleteChatAssistant('delete-test-assistant', $this->testInstance);
 
         // Verify it's deleted
-        $deletedAssistant = $this->getEntityManagerInstance()->getRepository(ChatAssistant::class)->findOneBy([
+        $deletedAssistant = self::getEntityManager()->getRepository(ChatAssistant::class)->findOneBy([
             'remoteId' => 'delete-test-assistant',
         ]);
 
@@ -592,7 +592,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
     public function testSyncConversationFromApiTransactionIntegrity(): void
     {
         // 测试事务完整性 - 当同步过程中出错时，不应该创建不完整的记录
-        $initialCount = count($this->getEntityManagerInstance()->getRepository(Conversation::class)->findAll());
+        $initialCount = count(self::getEntityManager()->getRepository(Conversation::class)->findAll());
 
         // 准备会导致错误的数据（缺少必需的id字段，但提供title以满足约束）
         $invalidApiData = [
@@ -604,7 +604,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncConversationFromApi($this->testInstance, $invalidApiData);
 
         // 验证数据库中没有创建不完整的记录
-        $finalCount = count($this->getEntityManagerInstance()->getRepository(Conversation::class)->findAll());
+        $finalCount = count(self::getEntityManager()->getRepository(Conversation::class)->findAll());
         $this->assertEquals($initialCount, $finalCount);
     }
 
@@ -655,7 +655,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($llmData, $this->testInstance);
 
         // 验证同步的模型数量
-        $repository = $this->getEntityManagerInstance()->getRepository(LlmModel::class);
+        $repository = self::getEntityManager()->getRepository(LlmModel::class);
         $models = $repository->findBy(['ragFlowInstance' => $this->testInstance]);
         $this->assertCount(3, $models); // 应该只有3个有效模型
 
@@ -723,7 +723,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($llmData, $this->testInstance);
 
         // 验证模型已更新
-        $repository = $this->getEntityManagerInstance()->getRepository(LlmModel::class);
+        $repository = self::getEntityManager()->getRepository(LlmModel::class);
         $updatedModel = $repository->findOneBy(['fid' => 'update-test-model', 'ragFlowInstance' => $this->testInstance]);
 
         $this->assertNotNull($updatedModel);
@@ -738,7 +738,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
 
     public function testSyncLlmModelsFromApiWithInvalidData(): void
     {
-        $initialCount = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $initialCount = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
 
         $llmData = [
             'InvalidProvider1' => [
@@ -771,7 +771,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($llmData, $this->testInstance);
 
         // 验证只有有效模型被创建
-        $repository = $this->getEntityManagerInstance()->getRepository(LlmModel::class);
+        $repository = self::getEntityManager()->getRepository(LlmModel::class);
         $models = $repository->findBy(['ragFlowInstance' => $this->testInstance]);
         $this->assertCount(2, $models); // 应该有两个有效模型（NumericProvider和ValidProvider）
 
@@ -818,7 +818,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
 
         $this->localDataSyncService->syncLlmModelsFromApi($llmData, $this->testInstance);
 
-        $repository = $this->getEntityManagerInstance()->getRepository(LlmModel::class);
+        $repository = self::getEntityManager()->getRepository(LlmModel::class);
 
         // 验证第一个模型（只有必需字段）
         $model1 = $repository->findOneBy(['fid' => 'partial-model-1', 'ragFlowInstance' => $this->testInstance]);
@@ -848,7 +848,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         // 这个测试验证事务完整性 - 当某个模型同步失败时，整个操作会回滚
         // 但由于实际很难模拟mapper错误，我们改为测试方法的基本功能
 
-        $initialCount = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $initialCount = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
 
         // 创建有效的模型数据
         $llmData = [
@@ -867,7 +867,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($llmData, $this->testInstance);
 
         // 验证模型被成功创建
-        $repository = $this->getEntityManagerInstance()->getRepository(LlmModel::class);
+        $repository = self::getEntityManager()->getRepository(LlmModel::class);
         $model = $repository->findOneBy(['fid' => 'transaction-test-model', 'ragFlowInstance' => $this->testInstance]);
 
         $this->assertInstanceOf(LlmModel::class, $model);
@@ -879,13 +879,13 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->assertEquals('TransactionTestProvider', $model->getProviderName());
 
         // 验证总数增加
-        $finalCount = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $finalCount = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
         $this->assertEquals($initialCount + 1, $finalCount);
     }
 
     public function testSyncLlmModelsFromApiWithEmptyData(): void
     {
-        $initialCount = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $initialCount = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
 
         // 测试空数据
         $emptyLlmData = [];
@@ -893,7 +893,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($emptyLlmData, $this->testInstance);
 
         // 验证没有新模型被创建
-        $finalCount = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $finalCount = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
         $this->assertEquals($initialCount, $finalCount);
 
         // 测试包含无效提供商的空数据
@@ -905,7 +905,7 @@ class LocalDataSyncServiceTest extends AbstractIntegrationTestCase
         $this->localDataSyncService->syncLlmModelsFromApi($invalidLlmData, $this->testInstance);
 
         // 验证仍然没有新模型被创建
-        $finalCount2 = count($this->getEntityManagerInstance()->getRepository(LlmModel::class)->findAll());
+        $finalCount2 = count(self::getEntityManager()->getRepository(LlmModel::class)->findAll());
         $this->assertEquals($initialCount, $finalCount2);
     }
 }

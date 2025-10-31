@@ -30,14 +30,14 @@ class DocumentRepositoryTest extends AbstractRepositoryTestCase
         $ragFlowInstance->setName('测试实例');
         $ragFlowInstance->setApiUrl('http://localhost:9380');
         $ragFlowInstance->setApiKey('test-key');
-        $this->getEntityManagerInstance()->persist($ragFlowInstance);
+        self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建数据集
         $dataset = new Dataset();
         $dataset->setName('测试数据集');
         $dataset->setDescription('用于测试的数据集');
         $dataset->setRagFlowInstance($ragFlowInstance);
-        $this->getEntityManagerInstance()->persist($dataset);
+        self::getEntityManager()->persist($dataset);
 
         // 创建文档
         $document = new Document();
@@ -883,7 +883,7 @@ class DocumentRepositoryTest extends AbstractRepositoryTestCase
         $this->assertNotNull($newDocument->getId());
 
         // 验证可以从数据库重新检索
-        $em = $this->getEntityManagerInstance();
+        $em = self::getEntityManager();
         $savedDocument = $em->find(Document::class, $newDocument->getId());
         $this->assertInstanceOf(Document::class, $savedDocument);
         $this->assertEquals('保存测试文档.pdf', $savedDocument->getName());
@@ -932,7 +932,7 @@ class DocumentRepositoryTest extends AbstractRepositoryTestCase
         $this->assertNotNull($documentId);
 
         // 验证文档存在于数据库中
-        $em = $this->getEntityManagerInstance();
+        $em = self::getEntityManager();
         $existingDocument = $em->find(Document::class, $documentId);
         $this->assertInstanceOf(Document::class, $existingDocument);
 
