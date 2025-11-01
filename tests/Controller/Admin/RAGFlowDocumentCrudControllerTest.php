@@ -32,8 +32,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
 
     public function testIndex(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问 Document 的 EasyAdmin 列表页
         $crawler = $client->request('GET', '/admin');
@@ -269,8 +268,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testParseDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -292,8 +290,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testParseDocumentWithNonExistentDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问不存在的文档ID
         $crawler = $client->request('GET', '/admin/ragflow-document/999999/parse');
@@ -311,8 +308,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testParseDocumentWithWrongStatus(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据，状态为已解析
         $dataset = $this->createTestDataset();
@@ -334,8 +330,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testShowParseStatus(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -357,8 +352,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testShowParseStatusWithNonExistentDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问不存在的文档ID
         $crawler = $client->request('GET', '/admin/ragflow-document/999999/parse-status');
@@ -376,8 +370,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testDownloadDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -399,8 +392,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testDownloadDocumentWithNonExistentDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问不存在的文档ID
         $crawler = $client->request('GET', '/admin/ragflow-document/999999/download');
@@ -418,8 +410,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
      */
     public function testDownloadDocumentWithoutFilename(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据，不设置文件名
         $dataset = $this->createTestDataset();

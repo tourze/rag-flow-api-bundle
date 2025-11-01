@@ -28,8 +28,7 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
 
     public function testIndex(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问 RAGFlowInstance 的 EasyAdmin 列表页
         $crawler = $client->request('GET', '/admin');
@@ -150,8 +149,7 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
 
     public function testValidationErrors(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         try {
             $client->catchExceptions(true);

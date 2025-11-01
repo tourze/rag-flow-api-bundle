@@ -29,8 +29,7 @@ class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testIndex(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问 Dataset 的 EasyAdmin 列表页
         $crawler = $client->request('GET', '/admin');
@@ -194,8 +193,7 @@ class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testValidationErrors(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         try {
             $client->catchExceptions(true);
@@ -275,8 +273,7 @@ class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testManageDocuments(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         try {
             $client->catchExceptions(true);

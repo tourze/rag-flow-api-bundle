@@ -175,8 +175,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testSyncChunks(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -198,8 +197,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testSyncChunksWithNonExistentDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问不存在的文档ID
         $crawler = $client->request('GET', '/admin/rag-flow/documents/sync-chunks/999999');
@@ -217,8 +215,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testRetryUpload(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -240,8 +237,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testRetryUploadWithNonExistentDocument(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问不存在的文档ID
         $crawler = $client->request('GET', '/admin/rag-flow/documents/retry-upload/999999');
@@ -259,8 +255,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testBatchSyncChunks(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();
@@ -293,8 +288,7 @@ class DatasetDocumentEACrudControllerTest extends AbstractEasyAdminControllerTes
      */
     public function testBatchSyncChunksWithoutDatasetId(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $dataset = $this->createTestDataset();

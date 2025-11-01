@@ -28,8 +28,7 @@ class ChatAssistantCrudControllerTest extends AbstractEasyAdminControllerTestCas
 
     public function testIndex(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 访问 ChatAssistant 的 EasyAdmin 列表页
         $crawler = $client->request('GET', '/admin');
@@ -96,8 +95,7 @@ class ChatAssistantCrudControllerTest extends AbstractEasyAdminControllerTestCas
 
     public function testValidationErrors(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         try {
             $client->catchExceptions(true);
@@ -143,8 +141,7 @@ class ChatAssistantCrudControllerTest extends AbstractEasyAdminControllerTestCas
 
     public function testSyncFromApi(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         // 创建测试数据
         $assistant = $this->createTestChatAssistant();
