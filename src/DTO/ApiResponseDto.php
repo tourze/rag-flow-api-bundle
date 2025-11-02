@@ -64,6 +64,8 @@ final class ApiResponseDto implements \ArrayAccess, \JsonSerializable
             $rawData = [];
         }
 
+        /** @var array<string, mixed> $rawData */
+
         // 使用水合器处理data字段
         $data = $hydrator($rawData);
 

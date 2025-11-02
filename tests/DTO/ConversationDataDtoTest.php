@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\DTO\ConversationDataDto;
 
 /**
  * 测试Conversation数据DTO
+ * @internal
  */
 #[CoversClass(ConversationDataDto::class)]
 class ConversationDataDtoTest extends TestCase
@@ -70,7 +71,7 @@ class ConversationDataDtoTest extends TestCase
             'description' => 'Test Description',
             'status' => 'active',
             'created_at' => $createdAt->format('c'),
-            'updated_at' => $updatedAt->format('c')
+            'updated_at' => $updatedAt->format('c'),
         ];
 
         $this->assertEquals($expected, $array);
@@ -88,7 +89,7 @@ class ConversationDataDtoTest extends TestCase
             'description' => null,
             'status' => null,
             'created_at' => null,
-            'updated_at' => null
+            'updated_at' => null,
         ];
 
         $this->assertEquals($expected, $array);

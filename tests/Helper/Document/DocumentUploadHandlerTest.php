@@ -54,7 +54,8 @@ final class DocumentUploadHandlerTest extends TestCase
         $request->files->expects($this->once())
             ->method('get')
             ->with('files', [])
-            ->willReturn([$file, 'not-a-file']);
+            ->willReturn([$file, 'not-a-file'])
+        ;
 
         $result = $this->handler->extractFiles($request);
         $this->assertCount(1, $result);
@@ -71,7 +72,8 @@ final class DocumentUploadHandlerTest extends TestCase
         $request->files->expects($this->once())
             ->method('get')
             ->with('files', [])
-            ->willReturn([$file, null, $file]);
+            ->willReturn([$file, null, $file])
+        ;
 
         $result = $this->handler->extractFiles($request);
         $this->assertCount(2, $result);

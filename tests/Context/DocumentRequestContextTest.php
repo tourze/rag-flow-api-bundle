@@ -11,6 +11,7 @@ use Tourze\RAGFlowApiBundle\Context\DocumentRequestContext;
 
 /**
  * 测试Document请求上下文
+ * @internal
  */
 #[CoversClass(DocumentRequestContext::class)]
 class DocumentRequestContextTest extends TestCase

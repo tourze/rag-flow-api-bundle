@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO\ResponseFactory;
 
+use HttpClientBundle\Request\RequestInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\ResponseFactory\AbstractResponseFactory;
@@ -17,6 +18,7 @@ use Tourze\RAGFlowApiBundle\Request\UpdateAgentRequest;
 
 /**
  * 测试响应工厂解析器
+ * @internal
  */
 #[CoversClass(ResponseFactoryResolver::class)]
 class ResponseFactoryResolverTest extends TestCase
@@ -75,7 +77,7 @@ class ResponseFactoryResolverTest extends TestCase
 
     public function testResolveOtherRequestReturnsDefaultFactory(): void
     {
-        $request = $this->createMock(\HttpClientBundle\Request\RequestInterface::class);
+        $request = $this->createMock(RequestInterface::class);
         $factory = $this->resolver->resolve($request);
 
         $this->assertInstanceOf(AbstractResponseFactory::class, $factory);
@@ -85,7 +87,7 @@ class ResponseFactoryResolverTest extends TestCase
 
     public function testDefaultFactoryHydration(): void
     {
-        $request = $this->createMock(\HttpClientBundle\Request\RequestInterface::class);
+        $request = $this->createMock(RequestInterface::class);
         $factory = $this->resolver->resolve($request);
 
         $testData = ['key' => 'value', 'number' => 123];

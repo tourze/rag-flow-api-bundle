@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\Orchestrator\DocumentSyncOrchestrator;
 
 /**
  * 测试Document同步编排器
+ * @internal
  */
 #[CoversClass(DocumentSyncOrchestrator::class)]
 class DocumentSyncOrchestratorTest extends TestCase

@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\DTO\AgentDataDto;
 
 /**
  * 测试Agent数据DTO
+ * @internal
  */
 #[CoversClass(AgentDataDto::class)]
 class AgentDataDtoTest extends TestCase
@@ -61,7 +62,7 @@ class AgentDataDtoTest extends TestCase
             'dsl' => ['type' => 'chat'],
             'status' => 'active',
             'created_at' => '2023-01-01T00:00:00Z',
-            'updated_at' => '2023-01-02T00:00:00Z'
+            'updated_at' => '2023-01-02T00:00:00Z',
         ];
 
         $dto = AgentDataDto::fromArray($data);
@@ -79,7 +80,7 @@ class AgentDataDtoTest extends TestCase
     {
         $data = [
             'id' => 123,
-            'title' => 'Test Agent'
+            'title' => 'Test Agent',
         ];
 
         $dto = AgentDataDto::fromArray($data);
@@ -92,7 +93,7 @@ class AgentDataDtoTest extends TestCase
     {
         $data = [
             'title' => 'Test Agent',
-            'status' => 'active'
+            'status' => 'active',
         ];
 
         $dto = AgentDataDto::fromArray($data);
@@ -115,7 +116,7 @@ class AgentDataDtoTest extends TestCase
             'dsl' => 'invalid', // not array
             'status' => 456, // not string
             'created_at' => 'invalid-date',
-            'updated_at' => ['invalid']
+            'updated_at' => ['invalid'],
         ];
 
         $dto = AgentDataDto::fromArray($data);
@@ -154,7 +155,7 @@ class AgentDataDtoTest extends TestCase
             'dsl' => $dsl,
             'status' => 'active',
             'created_at' => $createdAt->format('c'),
-            'updated_at' => $updatedAt->format('c')
+            'updated_at' => $updatedAt->format('c'),
         ];
 
         $this->assertEquals($expected, $array);
@@ -173,7 +174,7 @@ class AgentDataDtoTest extends TestCase
             'dsl' => null,
             'status' => null,
             'created_at' => null,
-            'updated_at' => null
+            'updated_at' => null,
         ];
 
         $this->assertEquals($expected, $array);

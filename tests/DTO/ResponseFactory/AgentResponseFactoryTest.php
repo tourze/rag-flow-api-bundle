@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO\ResponseFactory;
 
+use HttpClientBundle\Request\RequestInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\AgentDataDto;
@@ -16,6 +17,7 @@ use Tourze\RAGFlowApiBundle\Request\UpdateAgentRequest;
 
 /**
  * 测试Agent响应工厂
+ * @internal
  */
 #[CoversClass(AgentResponseFactory::class)]
 class AgentResponseFactoryTest extends TestCase
@@ -59,7 +61,7 @@ class AgentResponseFactoryTest extends TestCase
 
     public function testDoesNotSupportOtherRequest(): void
     {
-        $request = $this->createMock(\HttpClientBundle\Request\RequestInterface::class);
+        $request = $this->createMock(RequestInterface::class);
         $this->assertFalse($this->factory->supports($request));
     }
 
@@ -127,7 +129,7 @@ class AgentResponseFactoryTest extends TestCase
         $payload = [
             'code' => 200,
             'message' => 'success',
-            'data' => ['id' => '1', 'title' => 'Test Agent']
+            'data' => ['id' => '1', 'title' => 'Test Agent'],
         ];
 
         $apiResponse = $this->factory->create($payload);

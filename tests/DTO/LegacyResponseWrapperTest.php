@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\DTO\LegacyResponseWrapper;
 
 /**
  * 测试Legacy响应包装器
+ * @internal
  */
 #[CoversClass(LegacyResponseWrapper::class)]
 class LegacyResponseWrapperTest extends TestCase

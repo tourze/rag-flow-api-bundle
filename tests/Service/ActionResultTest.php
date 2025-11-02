@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\Service\ActionResult;
 
 /**
  * 测试动作结果
+ * @internal
  */
 #[CoversClass(ActionResult::class)]
 class ActionResultTest extends TestCase

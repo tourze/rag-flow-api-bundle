@@ -10,6 +10,7 @@ use Tourze\RAGFlowApiBundle\DTO\DatasetDataDto;
 
 /**
  * 测试Dataset数据DTO
+ * @internal
  */
 #[CoversClass(DatasetDataDto::class)]
 class DatasetDataDtoTest extends TestCase
@@ -70,7 +71,7 @@ class DatasetDataDtoTest extends TestCase
             'description' => 'Test Description',
             'status' => 'active',
             'created_at' => $createdAt->format('c'),
-            'updated_at' => $updatedAt->format('c')
+            'updated_at' => $updatedAt->format('c'),
         ];
 
         $this->assertEquals($expected, $array);
@@ -88,7 +89,7 @@ class DatasetDataDtoTest extends TestCase
             'description' => null,
             'status' => null,
             'created_at' => null,
-            'updated_at' => null
+            'updated_at' => null,
         ];
 
         $this->assertEquals($expected, $array);
@@ -99,7 +100,7 @@ class DatasetDataDtoTest extends TestCase
         $partialData = [
             'id' => '123',
             'name' => 'Test Dataset',
-            'description' => 'Test Description'
+            'description' => 'Test Description',
         ];
 
         $dto = DatasetDataDto::fromArray($partialData);

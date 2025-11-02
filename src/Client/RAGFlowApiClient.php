@@ -122,6 +122,9 @@ class RAGFlowApiClient extends ApiClient implements RAGFlowApiClientInterface, R
         return $options;
     }
 
+    /**
+     * @return ApiResponseDto<mixed>
+     */
     protected function formatResponse(RequestInterface $request, ResponseInterface $response): ApiResponseDto
     {
         $content = $response->getContent(false);
@@ -138,6 +141,7 @@ class RAGFlowApiClient extends ApiClient implements RAGFlowApiClientInterface, R
             throw new ApiRequestException($request, $response, 'Invalid response format');
         }
 
+        /** @var array<string, mixed> $data */
         $code = $data['code'] ?? null;
         if (!isset($data['code']) || 0 !== $code) {
             $message = isset($data['message']) && is_string($data['message']) ? $data['message'] : 'API request failed';
