@@ -188,7 +188,14 @@ final class ConversationDataDto
      */
     private static function extractArrayOrNull(array $data, string $key): ?array
     {
-        return isset($data[$key]) && is_array($data[$key]) ? $data[$key] : null;
+        if (!isset($data[$key]) || !is_array($data[$key])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $array */
+        $array = $data[$key];
+
+        return $array;
     }
 
     /**

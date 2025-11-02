@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\DatasetDataDto;
 
 /**
  * 测试Dataset数据DTO
  */
+#[CoversClass(DatasetDataDto::class)]
 class DatasetDataDtoTest extends TestCase
 {
     public function testConstructorAndGetters(): void

@@ -27,7 +27,7 @@ final class ResponseFactoryResolver
     /**
      * 根据请求类型解析对应的响应工厂
      */
-    public function resolve(\HttpClientBundle\Request\RequestInterface $request): AbstractResponseFactory
+    public function resolve(RequestInterface $request): AbstractResponseFactory
     {
         // Agent相关请求
         if ($request instanceof CreateAgentRequest
@@ -43,7 +43,7 @@ final class ResponseFactoryResolver
 
         // 默认返回通用工厂（保持向后兼容）
         return new class extends AbstractResponseFactory {
-            public function supports(\HttpClientBundle\Request\RequestInterface $request): bool
+            public function supports(RequestInterface $request): bool
             {
                 return true; // 通用工厂支持所有请求
             }

@@ -81,7 +81,14 @@ final class AgentDataDto
      */
     private static function extractArrayOrNull(array $data, string $key): ?array
     {
-        return isset($data[$key]) && is_array($data[$key]) ? $data[$key] : null;
+        if (!isset($data[$key]) || !is_array($data[$key])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $array */
+        $array = $data[$key];
+
+        return $array;
     }
 
     /**
@@ -96,6 +103,7 @@ final class AgentDataDto
         }
 
         $value = $data[$key];
+
         return (is_string($value) || is_numeric($value)) ? (string) $value : null;
     }
 

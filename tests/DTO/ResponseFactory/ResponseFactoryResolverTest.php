@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO\ResponseFactory;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\ResponseFactory\AbstractResponseFactory;
 use Tourze\RAGFlowApiBundle\DTO\ResponseFactory\AgentResponseFactory;
@@ -17,6 +18,7 @@ use Tourze\RAGFlowApiBundle\Request\UpdateAgentRequest;
 /**
  * 测试响应工厂解析器
  */
+#[CoversClass(ResponseFactoryResolver::class)]
 class ResponseFactoryResolverTest extends TestCase
 {
     private ResponseFactoryResolver $resolver;

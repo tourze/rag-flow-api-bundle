@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\AgentDataDto;
 use Tourze\RAGFlowApiBundle\DTO\ApiResponseDto;
 
 /**
  * @internal
- * @coversNothing
  */
+#[CoversClass(ApiResponseDto::class)]
 class ApiResponseDtoTest extends TestCase
 {
     public function testFromArrayWithSuccessResponse(): void

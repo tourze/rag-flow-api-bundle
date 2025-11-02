@@ -155,7 +155,6 @@ class RAGFlowApiClient extends ApiClient implements RAGFlowApiClientInterface, R
         return $factory->create($data);
     }
 
-    
     public function getBaseUrl(): string
     {
         return $this->getInstance()->getApiUrl();
@@ -181,6 +180,12 @@ class RAGFlowApiClient extends ApiClient implements RAGFlowApiClientInterface, R
         }
 
         return $this->instance;
+    }
+
+    public function setInstance(RAGFlowInstance $instance): void
+    {
+        $this->instance = $instance;
+        $this->instanceName = $instance->getName();
     }
 
     public function getInstanceName(): string

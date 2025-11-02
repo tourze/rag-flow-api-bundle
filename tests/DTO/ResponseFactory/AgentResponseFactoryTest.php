@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\DTO\ResponseFactory;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\DTO\AgentDataDto;
 use Tourze\RAGFlowApiBundle\DTO\ResponseFactory\AgentResponseFactory;
@@ -16,6 +17,7 @@ use Tourze\RAGFlowApiBundle\Request\UpdateAgentRequest;
 /**
  * 测试Agent响应工厂
  */
+#[CoversClass(AgentResponseFactory::class)]
 class AgentResponseFactoryTest extends TestCase
 {
     private AgentResponseFactory $factory;

@@ -40,7 +40,7 @@ final class DocumentActionService
             // 添加上下文信息用于重定向
             $filters = $this->requestContext->getFiltersForRedirect();
             $message = sprintf('文档 "%s" 开始解析，稍后刷新查看进度', $document->getName());
-            if ($filters !== []) {
+            if ([] !== $filters) {
                 $message .= ' (使用当前过滤器视图)';
             }
 

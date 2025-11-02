@@ -256,8 +256,8 @@ final class DocumentController extends AbstractController
     public function upload(Request $request): JsonResponse
     {
         try {
-            $dataset = $this->validateDatasetAndFile($request);
-            $document = $this->createAndPersistDocument($dataset, $request);
+            [$dataset, $uploadedFile] = $this->validateDatasetAndFile($request);
+            $document = $this->createAndPersistDocument($dataset, $uploadedFile, $request);
             $this->documentSyncService->syncDocumentToRemote($document, $dataset);
 
             return $this->successResponse('Document uploaded successfully',
@@ -271,17 +271,16 @@ final class DocumentController extends AbstractController
 
     /**
      * 验证数据集和文件
+     *
+     * @return array{Dataset, UploadedFile}
      */
-    private function validateDatasetAndFile(Request $request): Dataset
+    private function validateDatasetAndFile(Request $request): array
     {
         $datasetId = $this->extractDatasetId($request);
         $dataset = $this->validateAndGetDataset($datasetId);
         $uploadedFile = $this->extractAndValidateFile($request);
 
-        // 将验证后的文件存储在request中供后续使用
-        $request->attributes->set('validated_file', $uploadedFile);
-
-        return $dataset;
+        return [$dataset, $uploadedFile];
     }
 
     /**
@@ -315,11 +314,8 @@ final class DocumentController extends AbstractController
     /**
      * 创建并持久化文档
      */
-    private function createAndPersistDocument(Dataset $dataset, Request $request): Document
+    private function createAndPersistDocument(Dataset $dataset, UploadedFile $uploadedFile, Request $request): Document
     {
-        $uploadedFile = $request->attributes->get('validated_file');
-        assert($uploadedFile instanceof UploadedFile);
-
         $file = $this->fileService->uploadFile($uploadedFile, $this->getUser());
         $document = DocumentBuilder::fromUpload($dataset, $uploadedFile, $file, $request)
             ->getDocument()
@@ -554,15 +550,7 @@ final class DocumentController extends AbstractController
             $document = $this->validateAndGetDocument($documentId);
             $this->validateDocumentForParsing($document);
 
-            $dataset = $document->getDataset();
-            assert($dataset instanceof Dataset, 'Document must have a valid dataset');
-
-            $datasetRemoteId = $dataset->getRemoteId();
-            $documentRemoteId = $document->getRemoteId();
-
-            if (null === $datasetRemoteId || null === $documentRemoteId) {
-                throw new \InvalidArgumentException('Missing required remote IDs');
-            }
+            [$datasetRemoteId, $documentRemoteId] = $this->requireRemoteIds($document);
 
             $options = $this->extractParseOptions($request);
             $result = $this->documentService->parse(
@@ -586,6 +574,26 @@ final class DocumentController extends AbstractController
         if (null === $remoteId || '' === $remoteId) {
             throw new \InvalidArgumentException('Document not uploaded to RAGFlow yet');
         }
+    }
+
+    /**
+     * 获取并验证文档的远端ID（Dataset和Document的RemoteId）
+     *
+     * @return array{string, string} [datasetRemoteId, documentRemoteId]
+     */
+    private function requireRemoteIds(Document $document): array
+    {
+        $dataset = $document->getDataset();
+        assert($dataset instanceof Dataset, 'Document must have a valid dataset');
+
+        $datasetRemoteId = $dataset->getRemoteId();
+        $documentRemoteId = $document->getRemoteId();
+
+        if (null === $datasetRemoteId || null === $documentRemoteId) {
+            throw new \InvalidArgumentException('Missing required remote IDs');
+        }
+
+        return [$datasetRemoteId, $documentRemoteId];
     }
 
     /**
@@ -614,15 +622,7 @@ final class DocumentController extends AbstractController
             $document = $this->validateAndGetDocument($documentId);
             $this->validateDocumentForParsing($document);
 
-            $dataset = $document->getDataset();
-            assert($dataset instanceof Dataset, 'Document must have a valid dataset');
-
-            $datasetRemoteId = $dataset->getRemoteId();
-            $documentRemoteId = $document->getRemoteId();
-
-            if (null === $datasetRemoteId || null === $documentRemoteId) {
-                throw new \InvalidArgumentException('Missing required remote IDs');
-            }
+            [$datasetRemoteId, $documentRemoteId] = $this->requireRemoteIds($document);
 
             $result = $this->documentService->getParseStatus(
                 $datasetRemoteId,

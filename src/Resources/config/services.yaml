@@ -223,6 +223,13 @@ services:
         autoconfigure: true
         public: false
 
+    # Builder classes
+    Tourze\RAGFlowApiBundle\Builder\:
+        resource: '../../Builder/'
+        autowire: true
+        autoconfigure: true
+        public: true
+
     # Repository classes (Doctrine)
     Tourze\RAGFlowApiBundle\Repository\:
         resource: '../../Repository/'

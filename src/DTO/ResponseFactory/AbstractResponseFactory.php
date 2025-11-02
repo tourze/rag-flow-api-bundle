@@ -22,7 +22,7 @@ abstract class AbstractResponseFactory
     {
         return ApiResponseDto::fromArray(
             $payload,
-            fn(array $data) => $this->hydrate($data)
+            fn (array $data) => $this->hydrate($data)
         );
     }
 

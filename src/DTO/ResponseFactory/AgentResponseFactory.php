@@ -37,13 +37,18 @@ final class AgentResponseFactory extends AbstractResponseFactory
         // 对于列表请求，data通常是数组
         if ($this->currentRequest instanceof ListAgentsRequest) {
             return array_map(
-                static fn (array $agentData) => AgentDataDto::fromArray($agentData),
+                static function (mixed $agentData): AgentDataDto {
+                    assert(is_array($agentData), 'Agent data must be an array');
+
+                    /** @var array<string, mixed> $agentData */
+                    return AgentDataDto::fromArray($agentData);
+                },
                 $data
             );
         }
 
         // 对于单个Agent操作，data通常是单个对象
-        if ($data !== []) {
+        if ([] !== $data) {
             return AgentDataDto::fromArray($data);
         }
 

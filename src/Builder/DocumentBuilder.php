@@ -18,9 +18,11 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
  */
 final class DocumentBuilder
 {
-    public function __construct(
-        private readonly Document $document = new Document(),
-    ) {
+    private Document $document;
+
+    public function __construct()
+    {
+        $this->document = new Document();
     }
 
     /**

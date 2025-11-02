@@ -45,7 +45,7 @@ class RAGFlowApiClientFactory
             $this->logger
         );
 
-        return new RAGFlowApiClient(
+        $client = new RAGFlowApiClient(
             $instanceManager,
             $this->logger,
             $this->httpClient,
@@ -58,5 +58,10 @@ class RAGFlowApiClientFactory
             $this->documentRepository,
             $this->curlUploadService
         );
+
+        // 设置指定的实例
+        $client->setInstance($instance);
+
+        return $client;
     }
 }
