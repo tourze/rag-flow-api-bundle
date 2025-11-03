@@ -21,22 +21,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tourze\RAGFlowApiBundle\Context\DocumentRequestContext;
 use Tourze\RAGFlowApiBundle\Entity\Document;
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 use Tourze\RAGFlowApiBundle\Orchestrator\DocumentSyncOrchestrator;
-use Tourze\RAGFlowApiBundle\Repository\DatasetRepository;
-use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
 use Tourze\RAGFlowApiBundle\Service\ActionResult;
-use Tourze\RAGFlowApiBundle\Service\CurlUploadService;
 use Tourze\RAGFlowApiBundle\Service\DocumentActionService;
-use Tourze\RAGFlowApiBundle\Service\DocumentService;
-use Tourze\RAGFlowApiBundle\Service\LocalDataSyncService;
-use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
 
 /**
  * RAGFlow文档管理CRUD Controller
@@ -538,5 +530,93 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
         $this->addFlash('danger', $message);
 
         return $this->redirectToRoute('admin_rag_flow_document_index');
+    }
+
+    /**
+     * 将数组数据映射到实体
+     * @param array<string, mixed> $data
+     */
+    protected function mapDataToEntity(array $data): Document
+    {
+        $entity = new Document();
+
+        // 处理远程ID
+        if (isset($data['id'])) {
+            if (is_numeric($data['id'])) {
+                $entity->setId((int) $data['id']);
+                $entity->setRemoteId((string) $data['id']);
+            } else {
+                $entity->setRemoteId((string) $data['id']);
+            }
+        } elseif (isset($data['remoteId'])) {
+            $entity->setRemoteId($data['remoteId']);
+        }
+
+        // 处理 datasetId（支持下划线和驼峰命名）
+        if (isset($data['datasetId'])) {
+            $entity->setDatasetId($data['datasetId']);
+        } elseif (isset($data['dataset_id'])) {
+            $entity->setDatasetId($data['dataset_id']);
+        }
+
+        // 基本字段
+        if (isset($data['name'])) {
+            $entity->setName($data['name']);
+        }
+        if (isset($data['filename'])) {
+            $entity->setFilename($data['filename']);
+        }
+        if (isset($data['type'])) {
+            $entity->setType($data['type']);
+        }
+        if (isset($data['language'])) {
+            $entity->setLanguage($data['language']);
+        }
+
+        // 处理 status（支持多种命名）
+        if (isset($data['status'])) {
+            $entity->setStatus($data['status']);
+        } elseif (isset($data['parse_status'])) {
+            $entity->setStatus($data['parse_status']);
+        }
+
+        // 数值字段
+        if (isset($data['size'])) {
+            $entity->setSize((int) $data['size']);
+        }
+        if (isset($data['chunkCount'])) {
+            $entity->setChunkCount((int) $data['chunkCount']);
+        } elseif (isset($data['chunk_count'])) {
+            $entity->setChunkCount((int) $data['chunk_count']);
+        }
+
+        // 进度字段（暂时没有对应字段，但保留逻辑）
+        if (isset($data['progress'])) {
+            $entity->setProgress((float) $data['progress']);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * 将实体映射到数组数据
+     * @return array<string, mixed>
+     */
+    protected function mapEntityToData(Document $entity): array
+    {
+        return [
+            'id' => $entity->getId(),
+            'remoteId' => $entity->getRemoteId(),
+            'datasetId' => $entity->getDatasetId() ?? ($entity->getDataset() ? $entity->getDataset()->getId() : null),
+            'name' => $entity->getName(),
+            'filename' => $entity->getFilename(),
+            'type' => $entity->getType(),
+            'language' => $entity->getLanguage(),
+            'status' => $entity->getStatus(),
+            'size' => $entity->getSize(),
+            'chunkCount' => $entity->getChunkCount(),
+            'progress' => $entity->getProgress(),
+            'progressMsg' => $entity->getProgressMsg(),
+        ];
     }
 }

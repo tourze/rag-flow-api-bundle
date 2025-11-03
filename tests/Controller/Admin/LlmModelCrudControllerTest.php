@@ -8,7 +8,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,8 +33,7 @@ class LlmModelCrudControllerTest extends AbstractEasyAdminControllerTestCase
      */
     protected function getControllerService(): LlmModelCrudController
     {
-        // 创建独立的控制器实例,避免服务容器依赖
-        return new LlmModelCrudController();
+        return self::getService(LlmModelCrudController::class);
     }
 
     /**

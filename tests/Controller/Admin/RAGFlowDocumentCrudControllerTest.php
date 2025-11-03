@@ -108,8 +108,8 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
 
         // 测试数据映射功能
         $testData = [
-            'id' => 'test-document-id',
-            'dataset_id' => 'test-dataset-id',
+            'id' => 123,
+            'dataset_id' => 456,
             'name' => '测试文档',
             'filename' => 'test.pdf',
             'type' => 'pdf',
@@ -132,8 +132,8 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
         $entity = $method->invoke($controller, $testData);
 
         $this->assertInstanceOf(Document::class, $entity);
-        $this->assertEquals('test-document-id', $entity->getId());
-        $this->assertEquals('test-dataset-id', $entity->getDatasetId());
+        $this->assertEquals(123, $entity->getId());
+        $this->assertEquals('456', $entity->getDatasetId());
         $this->assertEquals('测试文档', $entity->getName());
         $this->assertEquals('test.pdf', $entity->getFilename());
     }
@@ -144,8 +144,8 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
 
         // 创建测试实体
         $entity = new Document();
-        $entity->setId('test-document-id');
-        $entity->setDatasetId('test-dataset-id');
+        $entity->setId(123);
+        $entity->setDatasetId(456);
         $entity->setName('测试文档');
         $entity->setFilename('test.pdf');
         $entity->setType('pdf');
@@ -159,7 +159,7 @@ class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestC
         $data = $method->invoke($controller, $entity);
 
         $this->assertIsArray($data);
-        $this->assertEquals('test-dataset-id', $data['datasetId']);
+        $this->assertEquals('456', $data['datasetId']);
         $this->assertEquals('测试文档', $data['name']);
         $this->assertEquals('test.pdf', $data['filename']);
         $this->assertEquals('pdf', $data['type']);

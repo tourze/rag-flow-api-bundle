@@ -11,9 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-// use Tourze\FileStorageBundle\Entity\File; // 临时注释以解决依赖问题
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
+
+// use Tourze\FileStorageBundle\Entity\File; // 临时注释以解决依赖问题
 
 /**
  * 文档实体类
@@ -184,6 +185,7 @@ class Document
             $this->dataset = new Dataset();
         }
         $this->dataset->setId($datasetId);
+        $this->dataset->setRemoteId((string) $datasetId);
     }
 
     public function getName(): string
