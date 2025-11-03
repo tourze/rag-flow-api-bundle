@@ -199,4 +199,9 @@ enum DocumentStatus: string implements Labelable, Itemable, Selectable
             self::SYNC_FAILED => 4,    // 映射到失败
         };
     }
+
+    // 注意：PHP 的 enum 不允许声明 __toString() 魔术方法
+    // 在 Twig/EasyAdmin 中请使用显式格式化：
+    // - Twig: 使用 `$status.value` 或自定义过滤器/函数获取标签
+    // - EasyAdmin: 使用自定义 EnumField 并通过 formatValue 或 setEnumCases() 渲染
 }

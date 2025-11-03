@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\CreateChatAssistantRequest;
+use Tourze\RAGFlowApiBundle\Tests\TypeAssertionTrait;
 
 /**
  * @internal
@@ -16,6 +17,7 @@ use Tourze\RAGFlowApiBundle\Request\CreateChatAssistantRequest;
 #[CoversClass(CreateChatAssistantRequest::class)]
 class CreateChatAssistantRequestTest extends TestCase
 {
+    use TypeAssertionTrait;
     private string $testName;
 
     /** @var array<string> */
@@ -51,6 +53,7 @@ class CreateChatAssistantRequestTest extends TestCase
         $this->assertArrayHasKey('json', $options);
 
         $json = $options['json'];
+        self::assertArrayAccessible($json);
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
         $this->assertArrayNotHasKey('avatar', $json);
@@ -82,6 +85,7 @@ class CreateChatAssistantRequestTest extends TestCase
 
         $options = $request->getRequestOptions();
         $json = $options['json'];
+        self::assertArrayAccessible($json);
 
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
@@ -104,6 +108,7 @@ class CreateChatAssistantRequestTest extends TestCase
 
         $options = $request->getRequestOptions();
         $json = $options['json'];
+        self::assertArrayAccessible($json);
 
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
@@ -131,7 +136,9 @@ class CreateChatAssistantRequestTest extends TestCase
     {
         $request = new CreateChatAssistantRequest($this->testName, []);
         $options = $request->getRequestOptions();
+        $json = $options['json'];
+        self::assertArrayAccessible($json);
 
-        $this->assertEquals([], $options['json']['dataset_ids']);
+        $this->assertEquals([], $json['dataset_ids']);
     }
 }

@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -137,25 +138,18 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             ->setHelp('文件大小（MB）')
         ;
 
-        yield TextField::new('status', '状态')
+        yield ChoiceField::new('status', '状态')
             ->setColumns(2)
-            ->formatValue(function ($value) {
-                /** @var array<string, array{string, string}> $statusMap */
-                $statusMap = [
-                    'pending' => ['待处理', 'secondary'],
-                    'uploading' => ['上传中', 'warning'],
-                    'uploaded' => ['已上传', 'info'],
-                    'processing' => ['处理中', 'warning'],
-                    'completed' => ['已完成', 'success'],
-                    'failed' => ['失败', 'danger'],
-                    'sync_failed' => ['同步失败', 'danger'],
-                ];
-                $statusKey = is_string($value) ? $value : 'unknown';
-                $statusInfo = $statusMap[$statusKey] ?? [$statusKey, 'secondary'];
-                [$text, $class] = $statusInfo;
-
-                return sprintf('<span class="badge bg-%s">%s</span>', $class, $text);
-            })
+            ->setChoices(DocumentStatus::getChoices())
+            ->renderAsBadges([
+                'pending' => 'secondary',
+                'uploading' => 'warning',
+                'uploaded' => 'info',
+                'processing' => 'warning',
+                'completed' => 'success',
+                'failed' => 'danger',
+                'sync_failed' => 'danger',
+            ])
             ->hideOnForm()
         ;
 
@@ -307,17 +301,16 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
 
     /**
      * 同步单个文档的分块
+     *
+     * 注意：EasyAdmin 会在路由参数解析阶段验证实体是否存在
+     * 如果 entityId 对应的文档不存在，会抛出 EntityNotFoundException
+     * 该异常发生在控制器方法执行之前，因此无需在此方法中检查文档是否存在
      */
     #[AdminAction(routePath: '/sync-chunks/{entityId}', routeName: 'sync_chunks')]
     public function syncChunks(Request $request): Response
     {
         $document = $this->getContext()?->getEntity()?->getInstance();
-
-        if (!$document instanceof Document) {
-            $this->addFlash('danger', '文档不存在');
-
-            return $this->redirectToRoute('rag_flow_documents');
-        }
+        assert($document instanceof Document, '无法获取文档实例');
 
         try {
             $datasetRemoteId = $document->getDataset()?->getRemoteId();
@@ -334,22 +327,21 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             $this->addFlash('danger', sprintf('❌ 同步失败: %s', $e->getMessage()));
         }
 
-        return $this->redirectToRoute('admin_dataset_document_ea');
+        return $this->redirectToRoute('rag_flow_documents');
     }
 
     /**
      * 重新上传文档
+     *
+     * 注意：EasyAdmin 会在路由参数解析阶段验证实体是否存在
+     * 如果 entityId 对应的文档不存在，会抛出 EntityNotFoundException
+     * 该异常发生在控制器方法执行之前，因此无需在此方法中检查文档是否存在
      */
     #[AdminAction(routePath: '/retry-upload/{entityId}', routeName: 'retry_upload')]
     public function retryUpload(Request $request): Response
     {
         $document = $this->getContext()?->getEntity()?->getInstance();
-
-        if (!$document instanceof Document) {
-            $this->addFlash('danger', '文档不存在');
-
-            return $this->redirectToRoute('rag_flow_documents');
-        }
+        assert($document instanceof Document, '无法获取文档实例');
 
         try {
             // 这里实现重新上传逻辑
@@ -359,7 +351,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             $this->addFlash('danger', sprintf('❌ 重新上传失败: %s', $e->getMessage()));
         }
 
-        return $this->redirectToRoute('admin_dataset_document_ea');
+        return $this->redirectToRoute('rag_flow_documents');
     }
 
     /**

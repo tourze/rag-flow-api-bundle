@@ -261,36 +261,87 @@ class VirtualChatAssistantTest extends AbstractEntityTestCase
     {
         $assistant = new VirtualChatAssistant();
 
-        // 根据属性名直接调用对应的 getter 和 setter
+        // 根据属性名调用对应的 setter/getter,直接内联以让PHPStan正确推断类型
         match ($property) {
-            'id' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setId($v), fn ($e) => $e->getId()),
-            'name' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setName($v), fn ($e) => $e->getName()),
-            'description' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setDescription($v), fn ($e) => $e->getDescription()),
-            'datasetIds' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setDatasetIds($v), fn ($e) => $e->getDatasetIds()),
-            'systemPrompt' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setSystemPrompt($v), fn ($e) => $e->getSystemPrompt()),
-            'model' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setModel($v), fn ($e) => $e->getModel()),
-            'temperature' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setTemperature($v), fn ($e) => $e->getTemperature()),
-            'maxTokens' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setMaxTokens($v), fn ($e) => $e->getMaxTokens()),
-            'topP' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setTopP($v), fn ($e) => $e->getTopP()),
-            'topK' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setTopK($v), fn ($e) => $e->getTopK()),
-            'language' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setLanguage($v), fn ($e) => $e->getLanguage()),
-            'isActive' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setIsActive($v), fn ($e) => $e->getIsActive()),
-            'sessionCount' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setSessionCount($v), fn ($e) => $e->getSessionCount()),
-            'messageCount' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setMessageCount($v), fn ($e) => $e->getMessageCount()),
-            'lastUsedAt' => $this->assertPropertyGetterSetter($assistant, $value, fn ($e, $v) => $e->setLastUsedAt($v), fn ($e) => $e->getLastUsedAt()),
+            'id' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setId($value);
+                $this->assertSame($value, $assistant->getId());
+            })(),
+            'name' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setName($value);
+                $this->assertSame($value, $assistant->getName());
+            })(),
+            'description' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setDescription($value);
+                $this->assertSame($value, $assistant->getDescription());
+            })(),
+            'datasetIds' => (function () use ($assistant, $value): void {
+                self::assertIsArray($value);
+                array_walk($value, fn ($item) => self::assertIsString($item));
+                /** @var array<string> $value */
+                $assistant->setDatasetIds($value);
+                $this->assertSame($value, $assistant->getDatasetIds());
+            })(),
+            'systemPrompt' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setSystemPrompt($value);
+                $this->assertSame($value, $assistant->getSystemPrompt());
+            })(),
+            'model' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setModel($value);
+                $this->assertSame($value, $assistant->getModel());
+            })(),
+            'temperature' => (function () use ($assistant, $value): void {
+                self::assertIsFloat($value);
+                $assistant->setTemperature($value);
+                $this->assertSame($value, $assistant->getTemperature());
+            })(),
+            'maxTokens' => (function () use ($assistant, $value): void {
+                self::assertIsInt($value);
+                $assistant->setMaxTokens($value);
+                $this->assertSame($value, $assistant->getMaxTokens());
+            })(),
+            'topP' => (function () use ($assistant, $value): void {
+                self::assertIsFloat($value);
+                $assistant->setTopP($value);
+                $this->assertSame($value, $assistant->getTopP());
+            })(),
+            'topK' => (function () use ($assistant, $value): void {
+                self::assertIsFloat($value);
+                $assistant->setTopK($value);
+                $this->assertSame($value, $assistant->getTopK());
+            })(),
+            'language' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setLanguage($value);
+                $this->assertSame($value, $assistant->getLanguage());
+            })(),
+            'isActive' => (function () use ($assistant, $value): void {
+                self::assertIsBool($value);
+                $assistant->setIsActive($value);
+                $this->assertSame($value, $assistant->getIsActive());
+            })(),
+            'sessionCount' => (function () use ($assistant, $value): void {
+                self::assertIsInt($value);
+                $assistant->setSessionCount($value);
+                $this->assertSame($value, $assistant->getSessionCount());
+            })(),
+            'messageCount' => (function () use ($assistant, $value): void {
+                self::assertIsInt($value);
+                $assistant->setMessageCount($value);
+                $this->assertSame($value, $assistant->getMessageCount());
+            })(),
+            'lastUsedAt' => (function () use ($assistant, $value): void {
+                self::assertIsString($value);
+                $assistant->setLastUsedAt($value);
+                $this->assertSame($value, $assistant->getLastUsedAt());
+            })(),
             default => self::fail("Unknown property: {$property}"),
         };
-    }
-
-    /**
-     * @param callable(VirtualChatAssistant, mixed): void $setter
-     * @param callable(VirtualChatAssistant): mixed       $getter
-     * @param mixed                                       $value
-     */
-    private function assertPropertyGetterSetter(VirtualChatAssistant $entity, $value, callable $setter, callable $getter): void
-    {
-        $setter($entity, $value);
-        $this->assertEquals($value, $getter($entity));
     }
 
     /**
