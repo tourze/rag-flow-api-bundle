@@ -21,9 +21,9 @@ use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
 #[RunTestsInSeparateProcesses]
 class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onSetUp(): void
+    protected function onAfterSetUp(): void
     {
-        parent::onSetUp();
+        parent::onAfterSetUp();
     }
 
     public function testIndex(): void

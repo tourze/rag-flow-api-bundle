@@ -25,9 +25,9 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 #[RunTestsInSeparateProcesses]
 class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onSetUp(): void
+    protected function onAfterSetUp(): void
     {
-        parent::onSetUp();
+        parent::onAfterSetUp();
     }
 
     public function testIndex(): void

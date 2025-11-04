@@ -34,7 +34,7 @@ abstract class AbstractVirtualEntityCrudControllerTestCase extends AbstractEasyA
      */
     abstract protected function getVirtualEntityTestData(): array;
 
-    protected function onSetUp(): void
+    protected function afterEasyAdminSetUp(): void
     {
         parent::onSetUp();
 

@@ -23,9 +23,9 @@ use Tourze\RAGFlowApiBundle\Entity\VirtualChunk;
 #[RunTestsInSeparateProcesses]
 class ChunkCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onSetUp(): void
+    protected function onAfterSetUp(): void
     {
-        parent::onSetUp();
+        parent::onAfterSetUp();
     }
 
     /**

@@ -22,7 +22,7 @@ use Tourze\RAGFlowApiBundle\Entity\VirtualConversation;
 #[RunTestsInSeparateProcesses]
 class ConversationCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onSetUp(): void
+    protected function afterEasyAdminSetUp(): void
     {
         parent::onSetUp();
     }
