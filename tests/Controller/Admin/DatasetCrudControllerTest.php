@@ -22,11 +22,6 @@ use Tourze\RAGFlowApiBundle\Entity\Dataset;
 #[RunTestsInSeparateProcesses]
 class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onAfterSetUp(): void
-    {
-        parent::onAfterSetUp();
-    }
-
     public function testIndex(): void
     {
         $client = self::createAuthenticatedClient();

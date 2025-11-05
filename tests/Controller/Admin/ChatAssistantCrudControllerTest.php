@@ -21,11 +21,6 @@ use Tourze\RAGFlowApiBundle\Entity\ChatAssistant;
 #[RunTestsInSeparateProcesses]
 class ChatAssistantCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onAfterSetUp(): void
-    {
-        parent::onAfterSetUp();
-    }
-
     public function testIndex(): void
     {
         $client = self::createAuthenticatedClient();

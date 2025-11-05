@@ -25,11 +25,6 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 #[RunTestsInSeparateProcesses]
 class RAGFlowDocumentCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    protected function onAfterSetUp(): void
-    {
-        parent::onAfterSetUp();
-    }
-
     public function testIndex(): void
     {
         $client = self::createAuthenticatedClient();
