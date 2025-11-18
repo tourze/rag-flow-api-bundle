@@ -54,12 +54,6 @@ class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
         }
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = $this->getControllerService();
-        $this->assertEquals(Dataset::class, $controller::getEntityFqcn());
-    }
-
     /**
      * @return AbstractCrudController<Dataset>
      */

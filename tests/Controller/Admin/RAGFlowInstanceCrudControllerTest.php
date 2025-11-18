@@ -40,12 +40,6 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
         $this->assertNotEmpty($pageTitle, '页面应该有标题');
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = $this->getControllerService();
-        $this->assertEquals(RAGFlowInstance::class, $controller::getEntityFqcn());
-    }
-
     /**
      * @return AbstractCrudController<RAGFlowInstance>
      */

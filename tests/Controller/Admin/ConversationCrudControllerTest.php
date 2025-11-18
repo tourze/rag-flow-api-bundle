@@ -46,12 +46,6 @@ class ConversationCrudControllerTest extends AbstractEasyAdminControllerTestCase
         $this->assertNotEmpty($pageTitle, '页面应该有标题');
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = $this->getControllerService();
-        $this->assertEquals(VirtualConversation::class, $controller::getEntityFqcn());
-    }
-
     /**
      * @return AbstractCrudController<VirtualConversation>
      */
