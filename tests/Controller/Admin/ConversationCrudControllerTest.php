@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\PHPUnitSymfonyWebTest\AbstractEasyAdminControllerTestCase;
 use Tourze\RAGFlowApiBundle\Controller\Admin\ConversationCrudController;
@@ -20,6 +21,7 @@ use Tourze\RAGFlowApiBundle\Entity\VirtualConversation;
  */
 #[CoversClass(ConversationCrudController::class)]
 #[RunTestsInSeparateProcesses]
+#[Group('memory-intensive')]
 class ConversationCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
     protected function afterEasyAdminSetUp(): void
@@ -172,7 +174,7 @@ class ConversationCrudControllerTest extends AbstractEasyAdminControllerTestCase
                 $this->assertGreaterThan(0, $invalidFeedback->count(), '应该提示表单验证错误');
 
                 $messages = $invalidFeedback->each(static function ($node): string {
-                    return trim((string) $node->text());
+                    return trim($node->text());
                 });
 
                 $this->assertNotEmpty(

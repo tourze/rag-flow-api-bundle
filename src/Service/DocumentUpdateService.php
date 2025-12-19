@@ -6,6 +6,7 @@ namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Tourze\RAGFlowApiBundle\Entity\Document;
+use Tourze\RAGFlowApiBundle\Util\DocumentDataUpdater;
 
 /**
  * 文档更新服务

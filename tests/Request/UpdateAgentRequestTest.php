@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\UpdateAgentRequest;
 
 /**
  * @internal
  */
 #[CoversClass(UpdateAgentRequest::class)]
-class UpdateAgentRequestTest extends TestCase
+class UpdateAgentRequestTest extends RequestTestCase
 {
     public function testRequestCreation(): void
     {

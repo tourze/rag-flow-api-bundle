@@ -176,7 +176,9 @@ final class EntityFilterTest extends TestCase
         ];
 
         $result = $this->filter->filterByQuery($graphResult, $searchData);
-        // 验证结果是数组类型（通过后续的使用来验证）
+
+        // 验证结果是数组类型且能够正常处理无效查询
+        $this->assertIsArray($result);
     }
 
     /**

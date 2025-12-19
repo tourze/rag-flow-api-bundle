@@ -591,7 +591,7 @@ class LlmModelRepositoryTest extends AbstractRepositoryTestCase
     private function createRAGFlowInstance(string $name): RAGFlowInstance
     {
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName($name);
+        $ragFlowInstance->setName($name . '_' . uniqid('', true));
         $ragFlowInstance->setApiUrl('https://example.com/api');
         $ragFlowInstance->setApiKey('test-api-key');
         $persistedInstance = $this->persistAndFlush($ragFlowInstance);

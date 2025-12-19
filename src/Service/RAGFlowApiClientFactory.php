@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -18,6 +19,7 @@ use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
 use Tourze\RAGFlowApiBundle\Repository\RAGFlowInstanceRepository;
 use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManager;
 
+#[WithMonologChannel(channel: 'rag_flow_api')]
 class RAGFlowApiClientFactory
 {
     public function __construct(

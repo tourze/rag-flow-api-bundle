@@ -13,7 +13,7 @@ use Tourze\RAGFlowApiBundle\DependencyInjection\RAGFlowApiExtension;
  * @internal
  */
 #[CoversClass(RAGFlowApiExtension::class)]
-class RAGFlowApiExtensionTest extends AbstractDependencyInjectionExtensionTestCase
+final class RAGFlowApiExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
     public function testExtensionLoadsServices(): void
     {
@@ -23,8 +23,8 @@ class RAGFlowApiExtensionTest extends AbstractDependencyInjectionExtensionTestCa
         $extension = new RAGFlowApiExtension();
         $extension->load([], $container);
 
-        // 检查服务是否正确加载
-        $this->assertTrue($container->hasDefinition('Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface'));
+        // 检查服务是否正确加载（Interface 是别名，使用 hasAlias）
+        $this->assertTrue($container->hasAlias('Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface'));
         $this->assertTrue($container->hasDefinition('Tourze\RAGFlowApiBundle\Service\RAGFlowApiClientFactory'));
     }
 
@@ -72,7 +72,7 @@ class RAGFlowApiExtensionTest extends AbstractDependencyInjectionExtensionTestCa
         $extension = new RAGFlowApiExtension();
         $extension->load([], $container);
 
-        // 验证Extension可以正常加载
-        $this->assertTrue($container->hasDefinition('Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface'));
+        // 验证Extension可以正常加载（Interface 是别名，使用 hasAlias）
+        $this->assertTrue($container->hasAlias('Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface'));
     }
 }

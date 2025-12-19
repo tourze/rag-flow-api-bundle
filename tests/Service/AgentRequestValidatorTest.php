@@ -53,7 +53,7 @@ class AgentRequestValidatorTest extends AbstractIntegrationTestCase
 
         $this->assertNotNull($result);
         $this->assertEquals(400, $result->getStatusCode());
-        $content = json_decode($result->getContent() ?: '', true);
+        $content = json_decode($result->getContent() !== null ? $result->getContent() : '', true);
         $this->assertIsArray($content);
         $this->assertStringContainsString('标题不能为空', $content['message'] ?? '');
     }
@@ -81,7 +81,7 @@ class AgentRequestValidatorTest extends AbstractIntegrationTestCase
 
         $this->assertNotNull($result);
         $this->assertEquals(400, $result->getStatusCode());
-        $content = json_decode($result->getContent() ?: '', true);
+        $content = json_decode($result->getContent() !== null ? $result->getContent() : '', true);
         $this->assertIsArray($content);
         $this->assertStringContainsString('RAGFlow实例ID不能为空', $content['message'] ?? '');
     }

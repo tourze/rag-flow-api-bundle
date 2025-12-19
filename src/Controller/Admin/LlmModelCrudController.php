@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Controller\Admin;
 
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -52,6 +53,8 @@ final class LlmModelCrudController extends AbstractCrudController
     {
         // 移除创建、编辑、删除操作，因为LLM模型是从API同步的只读数据
         $actions
+            ->disable(Action::NEW)
+            ->disable(Action::EDIT)
             ->disable(Action::DELETE)
         ;
 
@@ -62,7 +65,7 @@ final class LlmModelCrudController extends AbstractCrudController
             ->createAsGlobalAction()
         ;
 
-        return $actions;
+        return $actions->add(Crud::PAGE_INDEX, $syncAction);
     }
 
     public function configureFields(string $pageName): iterable
@@ -186,6 +189,7 @@ final class LlmModelCrudController extends AbstractCrudController
     /**
      * 从API同步LLM模型数据
      */
+    #[AdminAction(routePath: '/sync-from-api', routeName: 'sync_from_api')]
     public function syncFromApi(): Response
     {
         try {

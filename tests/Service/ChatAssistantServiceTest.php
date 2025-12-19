@@ -180,7 +180,7 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
         // 测试空过滤器 - 应该抛出异常（因为测试环境没有真实的RAGFlow API）
         try {
             $result = $this->chatAssistantService->list(1, 10, null);
-            $this->fail('Expected exception was not thrown');
+            self::fail('Expected exception was not thrown');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -195,7 +195,7 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
 
         try {
             $result = $this->chatAssistantService->list(1, 10, $filters);
-            $this->fail('Expected exception was not thrown');
+            self::fail('Expected exception was not thrown');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -209,7 +209,7 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
 
         try {
             $result = $this->chatAssistantService->list(1, 10, $invalidFilters);
-            $this->fail('Expected exception was not thrown');
+            self::fail('Expected exception was not thrown');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -228,7 +228,7 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
         // 第一页，默认大小
         try {
             $this->chatAssistantService->list(1);
-            $this->fail('Expected exception was not thrown for page 1');
+            self::fail('Expected exception was not thrown for page 1');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -236,7 +236,7 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
         // 第二页，自定义大小
         try {
             $this->chatAssistantService->list(2, 50);
-            $this->fail('Expected exception was not thrown for page 2');
+            self::fail('Expected exception was not thrown for page 2');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -244,14 +244,14 @@ class ChatAssistantServiceTest extends AbstractIntegrationTestCase
         // 边界情况
         try {
             $this->chatAssistantService->list(1, 1);
-            $this->fail('Expected exception was not thrown for page 1, size 1');
+            self::fail('Expected exception was not thrown for page 1, size 1');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
 
         try {
             $this->chatAssistantService->list(100, 100);
-            $this->fail('Expected exception was not thrown for page 100, size 100');
+            self::fail('Expected exception was not thrown for page 100, size 100');
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }

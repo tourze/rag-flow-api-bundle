@@ -57,7 +57,7 @@ class ChunkRepositoryTest extends AbstractRepositoryTestCase
     private function createRAGFlowInstance(): RAGFlowInstance
     {
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . uniqid());
         $ragFlowInstance->setApiUrl('https://example.com/api');
         $ragFlowInstance->setApiKey('test-api-key');
         $persistedInstance = $this->persistAndFlush($ragFlowInstance);
@@ -74,7 +74,8 @@ class ChunkRepositoryTest extends AbstractRepositoryTestCase
     private function createDataset(RAGFlowInstance $ragFlowInstance, string $name): Dataset
     {
         $dataset = new Dataset();
-        $dataset->setName($name);
+        $uniqueName = $name . '_' . uniqid();
+        $dataset->setName($uniqueName);
         $dataset->setDescription("用于{$name}测试的数据集");
         $dataset->setRagFlowInstance($ragFlowInstance);
         $persistedDataset = $this->persistAndFlush($dataset);

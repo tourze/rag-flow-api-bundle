@@ -16,7 +16,7 @@ use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
  * @extends ServiceEntityRepository<Dataset>
  */
 #[AsRepository(entityClass: Dataset::class)]
-class DatasetRepository extends ServiceEntityRepository
+final class DatasetRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -169,19 +169,23 @@ class DatasetRepository extends ServiceEntityRepository
     /**
      * 保存数据集
      */
-    public function save(Dataset $dataset): void
+    public function save(Dataset $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->persist($dataset);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     /**
      * 删除数据集
      */
-    public function remove(Dataset $dataset): void
+    public function remove(Dataset $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->remove($dataset);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     /**

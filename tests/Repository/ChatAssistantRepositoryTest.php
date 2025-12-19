@@ -298,12 +298,11 @@ class ChatAssistantRepositoryTest extends AbstractRepositoryTestCase
             $this->assertNotNull($createTime, 'Assistant create time should not be null');
 
             if (null !== $previousCreateTime) {
-                // 允许1秒的时间差异，避免微秒级精度问题
-                $timeDiff = abs($createTime->getTimestamp() - $previousCreateTime->getTimestamp());
-                $this->assertLessThanOrEqual(
-                    1,
-                    $timeDiff,
-                    '助手应该按创建时间降序排列，允许1秒误差'
+                // 降序排列：前一个的创建时间应该 >= 当前的创建时间（允许1秒误差）
+                $this->assertGreaterThanOrEqual(
+                    $createTime->getTimestamp() - 1,
+                    $previousCreateTime->getTimestamp(),
+                    '助手应该按创建时间降序排列'
                 );
             }
             $previousCreateTime = $createTime;
@@ -449,5 +448,102 @@ class ChatAssistantRepositoryTest extends AbstractRepositoryTestCase
         // 搜索不存在的关键词
         $noResultAssistants = $this->getRepository()->searchByKeywords('不存在的关键词');
         $this->assertEmpty($noResultAssistants);
+    }
+
+    public function testFindPendingSync(): void
+    {
+        // 创建数据集
+        $dataset = $this->createTestDataset('同步测试数据集');
+        $persistedDatasetResult = $this->persistAndFlush($dataset);
+        $this->assertInstanceOf(Dataset::class, $persistedDatasetResult);
+        /** @var Dataset $persistedDataset */
+        $persistedDataset = $persistedDatasetResult;
+
+        $now = new \DateTimeImmutable();
+
+        // 创建从未同步的助手
+        $neverSynced = new ChatAssistant();
+        $neverSynced->setName('从未同步的助手');
+        $neverSynced->setDataset($persistedDataset);
+        $this->persistAndFlush($neverSynced);
+
+        // 创建最近同步的助手（不需要同步）
+        $recentlySynced = new ChatAssistant();
+        $recentlySynced->setName('最近同步的助手');
+        $recentlySynced->setDataset($persistedDataset);
+        $recentlySynced->setLastSyncTime($now);
+        $this->persistAndFlush($recentlySynced);
+
+        // 创建很久没同步的助手（需要同步）
+        $longAgoSynced = new ChatAssistant();
+        $longAgoSynced->setName('很久没同步的助手');
+        $longAgoSynced->setDataset($persistedDataset);
+        $longAgoSynced->setLastSyncTime($now->modify('-2 hours'));
+        $this->persistAndFlush($longAgoSynced);
+
+        // 查找1小时前需要同步的助手
+        $since = $now->modify('-1 hour');
+        $pendingSync = $this->getRepository()->findPendingSync($since);
+
+        // 应该包含从未同步的和很久没同步的助手
+        $this->assertGreaterThanOrEqual(2, count($pendingSync));
+    }
+
+    public function testFindWithFilters(): void
+    {
+        // 创建数据集
+        $dataset1 = $this->createTestDataset('过滤测试数据集1');
+        $persistedDataset1Result = $this->persistAndFlush($dataset1);
+        $this->assertInstanceOf(Dataset::class, $persistedDataset1Result);
+        /** @var Dataset $persistedDataset1 */
+        $persistedDataset1 = $persistedDataset1Result;
+
+        $dataset2 = $this->createTestDataset('过滤测试数据集2');
+        $persistedDataset2Result = $this->persistAndFlush($dataset2);
+        $this->assertInstanceOf(Dataset::class, $persistedDataset2Result);
+        /** @var Dataset $persistedDataset2 */
+        $persistedDataset2 = $persistedDataset2Result;
+
+        // 创建多个助手
+        for ($i = 1; $i <= 15; ++$i) {
+            $assistant = new ChatAssistant();
+            $assistant->setName("过滤测试助手{$i}");
+            $assistant->setDataset($i % 2 === 0 ? $persistedDataset1 : $persistedDataset2);
+            $assistant->setLlmModel($i % 3 === 0 ? 'gpt-4' : 'gpt-3.5-turbo');
+            $assistant->setEnabled($i % 4 !== 0);
+            $this->persistAndFlush($assistant);
+        }
+
+        // 测试无过滤条件
+        $allResults = $this->getRepository()->findWithFilters([], 1, 20);
+        $this->assertIsArray($allResults);
+        $this->assertArrayHasKey('items', $allResults);
+        $this->assertArrayHasKey('total', $allResults);
+        $this->assertGreaterThanOrEqual(15, $allResults['total']);
+
+        // 测试按名称过滤
+        $nameFilterResults = $this->getRepository()->findWithFilters(['name' => '过滤测试助手1'], 1, 20);
+        $this->assertGreaterThanOrEqual(1, count($nameFilterResults['items']));
+
+        // 测试按启用状态过滤
+        $enabledFilterResults = $this->getRepository()->findWithFilters(['enabled' => true], 1, 20);
+        foreach ($enabledFilterResults['items'] as $assistant) {
+            if ($assistant instanceof ChatAssistant) {
+                $this->assertTrue($assistant->isEnabled());
+            }
+        }
+
+        // 测试按数据集过滤
+        $datasetId1 = $persistedDataset1->getId();
+        $this->assertNotNull($datasetId1);
+        $datasetFilterResults = $this->getRepository()->findWithFilters(['dataset_id' => $datasetId1], 1, 20);
+        $this->assertGreaterThanOrEqual(1, count($datasetFilterResults['items']));
+
+        // 测试分页
+        $page1Results = $this->getRepository()->findWithFilters([], 1, 5);
+        $this->assertLessThanOrEqual(5, count($page1Results['items']));
+
+        $page2Results = $this->getRepository()->findWithFilters([], 2, 5);
+        $this->assertLessThanOrEqual(5, count($page2Results['items']));
     }
 }

@@ -39,13 +39,15 @@ class DocumentBuilderTest extends AbstractIntegrationTestCase
 
     public function testFromUploadBasic(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         $instance = new RAGFlowInstance();
-        $instance->setName('Builder Test Instance');
+        $instance->setName('Builder Test Instance ' . $uniqueSuffix);
         $instance->setApiUrl('https://builder-test.example.com/api');
-        $instance->setApiKey('builder-test-key');
+        $instance->setApiKey('builder-test-key-' . $uniqueSuffix);
 
         $dataset = new Dataset();
-        $dataset->setName('Test Dataset');
+        $dataset->setName('Test Dataset ' . $uniqueSuffix);
         $dataset->setDescription('Test Description');
         $dataset->setRemoteId('dataset-123');
         $dataset->setRagFlowInstance($instance);
@@ -95,13 +97,15 @@ class DocumentBuilderTest extends AbstractIntegrationTestCase
 
     public function testFromUploadWithoutDisplayName(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         $instance = new RAGFlowInstance();
-        $instance->setName('Builder Test 2');
+        $instance->setName('Builder Test 2 ' . $uniqueSuffix);
         $instance->setApiUrl('https://builder-test2.example.com/api');
-        $instance->setApiKey('builder-test-key-2');
+        $instance->setApiKey('builder-test-key-2-' . $uniqueSuffix);
 
         $dataset = new Dataset();
-        $dataset->setName('Test Dataset 2');
+        $dataset->setName('Test Dataset 2 ' . $uniqueSuffix);
         $dataset->setRemoteId('dataset-456');
         $dataset->setRagFlowInstance($instance);
 
@@ -143,13 +147,15 @@ class DocumentBuilderTest extends AbstractIntegrationTestCase
 
     public function testFromUploadWithEmptyDisplayName(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         $instance = new RAGFlowInstance();
-        $instance->setName('Builder Test 3');
+        $instance->setName('Builder Test 3 ' . $uniqueSuffix);
         $instance->setApiUrl('https://builder-test3.example.com/api');
-        $instance->setApiKey('builder-test-key-3');
+        $instance->setApiKey('builder-test-key-3-' . $uniqueSuffix);
 
         $dataset = new Dataset();
-        $dataset->setName('Test Dataset 3');
+        $dataset->setName('Test Dataset 3 ' . $uniqueSuffix);
         $dataset->setRemoteId('dataset-789');
         $dataset->setRagFlowInstance($instance);
 

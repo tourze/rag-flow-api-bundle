@@ -17,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -29,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,6 +52,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
         private readonly DocumentRepository $documentRepository,
         private readonly DocumentService $documentService,
         private readonly RequestStack $requestStack,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
 
@@ -327,7 +330,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             $this->addFlash('danger', sprintf('❌ 同步失败: %s', $e->getMessage()));
         }
 
-        return $this->redirectToRoute('rag_flow_documents');
+        return $this->redirectToIndex();
     }
 
     /**
@@ -351,7 +354,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             $this->addFlash('danger', sprintf('❌ 重新上传失败: %s', $e->getMessage()));
         }
 
-        return $this->redirectToRoute('rag_flow_documents');
+        return $this->redirectToIndex();
     }
 
     /**
@@ -362,7 +365,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
     {
         try {
             $datasetIdRaw = $request->query->get('datasetId');
-            $datasetIdStr = is_string($datasetIdRaw) || is_int($datasetIdRaw) ? (string) $datasetIdRaw : null;
+            $datasetIdStr = is_int($datasetIdRaw) ? (string) $datasetIdRaw : (is_string($datasetIdRaw) ? $datasetIdRaw : null);
             $documents = $this->findCompletedDocuments($datasetIdStr);
 
             $result = $this->syncDocumentChunks($documents);
@@ -371,9 +374,7 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
             $this->addFlash('danger', sprintf('❌ 批量同步失败: %s', $e->getMessage()));
         }
 
-        $validQueryParams = $request->query->all();
-
-        return $this->redirectToRoute('rag_flow_documents', $validQueryParams);
+        return $this->redirectToIndex($request->query->all());
     }
 
     /**
@@ -468,5 +469,22 @@ final class DatasetDocumentEACrudController extends AbstractCrudController
         if (0 === $syncedCount && [] === $errors) {
             $this->addFlash('info', 'ℹ️ 没有找到需要同步的已完成文档');
         }
+    }
+
+    /**
+     * 重定向到索引页面
+     *
+     * @param array<string, mixed> $queryParams 额外的查询参数
+     */
+    private function redirectToIndex(array $queryParams = []): RedirectResponse
+    {
+        $url = $this->adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Action::INDEX)
+            ->setAll($queryParams)
+            ->generateUrl()
+        ;
+
+        return $this->redirect($url);
     }
 }

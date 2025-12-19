@@ -69,9 +69,13 @@ class DatasetDataDtoTest extends TestCase
             'id' => '123',
             'name' => 'Test Dataset',
             'description' => 'Test Description',
+            'language' => null,
+            'chunk_num' => null,
+            'document_amount' => null,
             'status' => 'active',
-            'created_at' => $createdAt->format('c'),
-            'updated_at' => $updatedAt->format('c'),
+            'permission' => null,
+            'create_time' => $createdAt->format('c'),
+            'update_time' => $updatedAt->format('c'),
         ];
 
         $this->assertEquals($expected, $array);
@@ -87,9 +91,13 @@ class DatasetDataDtoTest extends TestCase
             'id' => null,
             'name' => null,
             'description' => null,
+            'language' => null,
+            'chunk_num' => null,
+            'document_amount' => null,
             'status' => null,
-            'created_at' => null,
-            'updated_at' => null,
+            'permission' => null,
+            'create_time' => null,
+            'update_time' => null,
         ];
 
         $this->assertEquals($expected, $array);

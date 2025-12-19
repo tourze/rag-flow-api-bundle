@@ -29,15 +29,19 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
 
     protected function createNewEntity(): object
     {
+        $uniqueSuffix = uniqid('', true);
+
         // 创建RAGFlow实例
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . $uniqueSuffix);
         $ragFlowInstance->setApiUrl('http://localhost:9380');
-        $ragFlowInstance->setApiKey('test-key');
+        $ragFlowInstance->setApiKey('test-key-' . $uniqueSuffix);
+        self::getEntityManager()->persist($ragFlowInstance);
+        self::getEntityManager()->flush();
 
         // 创建智能体
         $agent = new RAGFlowAgent();
-        $agent->setTitle('测试智能体');
+        $agent->setTitle('测试智能体_' . $uniqueSuffix);
         $agent->setDescription('用于测试的智能体');
         $agent->setDsl(['type' => 'test', 'config' => []]);
         $agent->setRagFlowInstance($ragFlowInstance);
@@ -57,18 +61,20 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
 
     public function testFindByInstance(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         // 创建RAGFlow实例
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . $uniqueSuffix);
         $ragFlowInstance->setApiUrl('http://localhost:9380');
-        $ragFlowInstance->setApiKey('test-key');
+        $ragFlowInstance->setApiKey('test-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建另一个RAGFlow实例
         $otherInstance = new RAGFlowInstance();
-        $otherInstance->setName('其他实例');
+        $otherInstance->setName('其他实例_' . $uniqueSuffix);
         $otherInstance->setApiUrl('http://localhost:9381');
-        $otherInstance->setApiKey('other-key');
+        $otherInstance->setApiKey('other-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($otherInstance);
 
         // 为第一个实例创建智能体
@@ -108,11 +114,13 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
 
     public function testFindNeedingSync(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         // 创建RAGFlow实例
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . $uniqueSuffix);
         $ragFlowInstance->setApiUrl('http://localhost:9380');
-        $ragFlowInstance->setApiKey('test-key');
+        $ragFlowInstance->setApiKey('test-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建需要同步的智能体（没有remoteId）
@@ -155,18 +163,20 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
 
     public function testFindByRemoteId(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         // 创建RAGFlow实例
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . $uniqueSuffix);
         $ragFlowInstance->setApiUrl('http://localhost:9380');
-        $ragFlowInstance->setApiKey('test-key');
+        $ragFlowInstance->setApiKey('test-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($ragFlowInstance);
 
         // 创建另一个RAGFlow实例
         $otherInstance = new RAGFlowInstance();
-        $otherInstance->setName('其他实例');
+        $otherInstance->setName('其他实例_' . $uniqueSuffix);
         $otherInstance->setApiUrl('http://localhost:9381');
-        $otherInstance->setApiKey('other-key');
+        $otherInstance->setApiKey('other-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($otherInstance);
 
         $remoteId = 'test-remote-id-123';
@@ -209,11 +219,13 @@ class RAGFlowAgentRepositoryTest extends AbstractRepositoryTestCase
 
     public function testFindByStatus(): void
     {
+        $uniqueSuffix = uniqid('', true);
+
         // 创建RAGFlow实例
         $ragFlowInstance = new RAGFlowInstance();
-        $ragFlowInstance->setName('测试实例');
+        $ragFlowInstance->setName('测试实例_' . $uniqueSuffix);
         $ragFlowInstance->setApiUrl('http://localhost:9380');
-        $ragFlowInstance->setApiKey('test-key');
+        $ragFlowInstance->setApiKey('test-key-' . $uniqueSuffix);
         self::getEntityManager()->persist($ragFlowInstance);
 
         $statuses = ['draft', 'active', 'inactive', 'sync_failed'];

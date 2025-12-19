@@ -68,7 +68,12 @@ class RAGFlowAgentCrudControllerTest extends AbstractEasyAdminControllerTestCase
      */
     public static function provideIndexPageHeaders(): iterable
     {
-        yield 'title' => ['标题'];
+        yield 'ID' => ['ID'];
+        yield '标题' => ['标题'];
+        yield 'RAGFlow实例' => ['RAGFlow实例'];
+        yield '状态' => ['状态'];
+        yield '创建时间' => ['创建时间'];
+        yield '最后同步时间' => ['最后同步时间'];
     }
 
     /**
@@ -85,6 +90,48 @@ class RAGFlowAgentCrudControllerTest extends AbstractEasyAdminControllerTestCase
     public static function provideEditPageFields(): iterable
     {
         yield 'title' => ['title'];
+    }
+
+    /**
+     * 测试 syncToRemote 动作存在
+     *
+     * 由于需要真实的 RAGFlow API 连接，只验证方法存在性
+     *
+     * @see RAGFlowAgentCrudController::syncToRemote()
+     */
+    public function testSyncToRemote(): void
+    {
+        $controller = $this->getControllerService();
+        $reflection = new \ReflectionClass($controller);
+
+        $this->assertTrue(
+            $reflection->hasMethod('syncToRemote'),
+            'Controller should have syncToRemote method'
+        );
+
+        $method = $reflection->getMethod('syncToRemote');
+        $this->assertTrue($method->isPublic(), 'syncToRemote should be public');
+    }
+
+    /**
+     * 测试 batchSync 动作存在
+     *
+     * 由于需要真实的 RAGFlow API 连接，只验证方法存在性
+     *
+     * @see RAGFlowAgentCrudController::batchSync()
+     */
+    public function testHasBatchSyncMethod(): void
+    {
+        $controller = $this->getControllerService();
+        $reflection = new \ReflectionClass($controller);
+
+        $this->assertTrue(
+            $reflection->hasMethod('batchSync'),
+            'Controller should have batchSync method'
+        );
+
+        $method = $reflection->getMethod('batchSync');
+        $this->assertTrue($method->isPublic(), 'batchSync should be public');
     }
 
     public function testValidationErrors(): void
@@ -125,7 +172,7 @@ class RAGFlowAgentCrudControllerTest extends AbstractEasyAdminControllerTestCase
                 $this->assertGreaterThan(0, $invalidFeedback->count(), '应该提示表单验证错误');
 
                 $messages = $invalidFeedback->each(static function ($node): string {
-                    return trim((string) $node->text());
+                    return trim($node->text());
                 });
 
                 $this->assertNotEmpty(

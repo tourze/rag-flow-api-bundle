@@ -19,7 +19,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
     name: 'rag-flow:dataset:list',
     description: '列出 RAGFlow 数据集'
 )]
-class ListDatasetsCommand extends Command
+final class ListDatasetsCommand extends Command
 {
     public function __construct(
         private readonly RAGFlowInstanceManagerInterface $instanceManager,

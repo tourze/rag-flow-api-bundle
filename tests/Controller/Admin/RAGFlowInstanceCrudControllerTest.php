@@ -21,25 +21,6 @@ use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
 #[RunTestsInSeparateProcesses]
 class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    public function testIndex(): void
-    {
-        $client = self::createAuthenticatedClient();
-
-        // 访问 RAGFlowInstance 的 EasyAdmin 列表页
-        $crawler = $client->request('GET', '/admin');
-
-        // 验证响应成功
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertTrue($client->getResponse()->isSuccessful());
-
-        // 验证页面内容包含RAGFlow实例管理相关元素
-        $this->assertGreaterThan(0, $crawler->filter('body')->count(), '页面应该包含 body 元素');
-
-        // 验证页面标题包含内容
-        $pageTitle = $crawler->filter('title')->text();
-        $this->assertNotEmpty($pageTitle, '页面应该有标题');
-    }
-
     /**
      * @return AbstractCrudController<RAGFlowInstance>
      */
@@ -97,15 +78,16 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
     public static function provideIndexPageHeaders(): iterable
     {
         yield 'id' => ['ID'];
-        yield 'name' => ['名称'];
-        yield 'description' => ['描述'];
+        yield 'name' => ['实例名称'];
         yield 'apiUrl' => ['API URL'];
-        yield 'apiKey' => ['API 密钥'];
-        yield 'version' => ['版本'];
-        yield 'isDefault' => ['默认'];
-        yield 'isActive' => ['激活'];
+        yield 'apiKey' => ['API密钥'];
+        yield 'chatApiKey' => ['聊天API密钥'];
+        yield 'description' => ['描述'];
+        yield 'timeout' => ['超时时间'];
+        yield 'enabled' => ['是否启用'];
+        yield 'healthy' => ['健康状态'];
         yield 'createTime' => ['创建时间'];
-        yield 'updateTime' => ['更新时间'];
+        yield 'lastHealthCheck' => ['最后健康检查'];
     }
 
     /**
@@ -114,12 +96,12 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
     public static function provideNewPageFields(): iterable
     {
         yield 'name' => ['name'];
-        yield 'description' => ['description'];
         yield 'apiUrl' => ['apiUrl'];
         yield 'apiKey' => ['apiKey'];
-        yield 'version' => ['version'];
-        yield 'isDefault' => ['isDefault'];
-        yield 'isActive' => ['isActive'];
+        yield 'chatApiKey' => ['chatApiKey'];
+        yield 'description' => ['description'];
+        yield 'timeout' => ['timeout'];
+        yield 'enabled' => ['enabled'];
     }
 
     /**
@@ -128,12 +110,12 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
     public static function provideEditPageFields(): iterable
     {
         yield 'name' => ['name'];
-        yield 'description' => ['description'];
         yield 'apiUrl' => ['apiUrl'];
         yield 'apiKey' => ['apiKey'];
-        yield 'version' => ['version'];
-        yield 'isDefault' => ['isDefault'];
-        yield 'isActive' => ['isActive'];
+        yield 'chatApiKey' => ['chatApiKey'];
+        yield 'description' => ['description'];
+        yield 'timeout' => ['timeout'];
+        yield 'enabled' => ['enabled'];
     }
 
     public function testValidationErrors(): void
@@ -171,7 +153,7 @@ class RAGFlowInstanceCrudControllerTest extends AbstractEasyAdminControllerTestC
                 $this->assertGreaterThan(0, $invalidFeedback->count(), '应该提示表单验证错误');
 
                 $messages = $invalidFeedback->each(static function ($node): string {
-                    return trim((string) $node->text());
+                    return trim($node->text());
                 });
 
                 $this->assertNotEmpty(

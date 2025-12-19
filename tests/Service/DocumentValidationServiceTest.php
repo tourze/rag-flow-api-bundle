@@ -32,6 +32,31 @@ final class DocumentValidationServiceTest extends AbstractIntegrationTestCase
         $this->assertInstanceOf(DocumentValidationService::class, $this->validationService);
     }
 
+    public function testValidateAndGetDataset(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Validation Instance');
+        $instance->setApiUrl('https://validation.example.com/api');
+        $instance->setApiKey('validation-key');
+
+        $dataset = new Dataset();
+        $dataset->setName('Valid Dataset');
+        $dataset->setRemoteId('dataset-valid-123');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        $datasetId = $dataset->getId();
+        $this->assertNotNull($datasetId);
+
+        $result = $this->validationService->validateAndGetDataset($datasetId);
+
+        $this->assertInstanceOf(Dataset::class, $result);
+        $this->assertSame($datasetId, $result->getId());
+        $this->assertSame('Valid Dataset', $result->getName());
+    }
+
     public function test验证数据集存在时返回实体(): void
     {
         $instance = new RAGFlowInstance();
@@ -63,6 +88,42 @@ final class DocumentValidationServiceTest extends AbstractIntegrationTestCase
         $this->expectExceptionMessage('Dataset not found');
 
         $this->validationService->validateAndGetDataset(99999);
+    }
+
+    public function testValidateAndGetDocument(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Document Instance');
+        $instance->setApiUrl('https://document.example.com/api');
+        $instance->setApiKey('document-key');
+
+        $dataset = new Dataset();
+        $dataset->setName('Document Dataset');
+        $dataset->setRemoteId('dataset-doc-456');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        $document = new Document();
+        $document->setName('Test Document');
+        $document->setFilename('test.txt');
+        $document->setType('txt');
+        $document->setStatus(DocumentStatus::PENDING);
+        $document->setDataset($dataset);
+
+        $this->persistAndFlush($document);
+
+        $datasetId = $dataset->getId();
+        $documentId = $document->getId();
+        $this->assertNotNull($datasetId);
+        $this->assertNotNull($documentId);
+
+        $result = $this->validationService->validateAndGetDocument($datasetId, $documentId);
+
+        $this->assertInstanceOf(Document::class, $result);
+        $this->assertSame($documentId, $result->getId());
+        $this->assertSame('Test Document', $result->getName());
     }
 
     public function test文档归属正确时返回实体(): void
@@ -141,6 +202,29 @@ final class DocumentValidationServiceTest extends AbstractIntegrationTestCase
 
         // 尝试用dataset1的ID验证属于dataset2的文档
         $this->validationService->validateAndGetDocument($dataset1Id, $documentId);
+    }
+
+    public function testFindAndValidateDocument(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Find Instance');
+        $instance->setApiUrl('https://find.example.com/api');
+        $instance->setApiKey('find-key');
+
+        $dataset = new Dataset();
+        $dataset->setName('Find Dataset');
+        $dataset->setRemoteId('dataset-find-789');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        $datasetId = $dataset->getId();
+        $this->assertNotNull($datasetId);
+
+        $result = $this->validationService->findAndValidateDocument($datasetId, 99999);
+
+        $this->assertNull($result);
     }
 
     public function test查找验证返回null当文档不存在(): void
@@ -256,6 +340,36 @@ final class DocumentValidationServiceTest extends AbstractIntegrationTestCase
         $this->assertFalse($this->validationService->isValidRemoteId(''));
     }
 
+    public function testValidateDocumentForParsing(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Parsing Instance');
+        $instance->setApiUrl('https://parsing.example.com/api');
+        $instance->setApiKey('parsing-key');
+
+        $dataset = new Dataset();
+        $dataset->setName('Parsing Dataset');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        $document = new Document();
+        $document->setName('Doc Ready To Parse');
+        $document->setFilename('parse.txt');
+        $document->setType('txt');
+        $document->setRemoteId('remote-parse-123');
+        $document->setDataset($dataset);
+
+        $this->persistAndFlush($document);
+
+        // 不应抛出异常
+        $this->validationService->validateDocumentForParsing($document);
+
+        // 验证文档具有有效的remoteId
+        $this->assertTrue($this->validationService->hasValidRemoteId($document));
+    }
+
     public function test验证文档可以解析时remoteId存在(): void
     {
         $instance = new RAGFlowInstance();
@@ -281,7 +395,9 @@ final class DocumentValidationServiceTest extends AbstractIntegrationTestCase
 
         // 不应抛出异常
         $this->validationService->validateDocumentForParsing($document);
-        // 无意义的断言已移除
+
+        // 验证文档具有有效的remoteId
+        $this->assertTrue($this->validationService->hasValidRemoteId($document));
     }
 
     public function test验证文档解析时remoteId缺失抛出异常(): void

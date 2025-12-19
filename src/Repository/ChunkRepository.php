@@ -17,7 +17,7 @@ use Tourze\RAGFlowApiBundle\Entity\Document;
  * @extends ServiceEntityRepository<Chunk>
  */
 #[AsRepository(entityClass: Chunk::class)]
-class ChunkRepository extends ServiceEntityRepository
+final class ChunkRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -211,18 +211,22 @@ class ChunkRepository extends ServiceEntityRepository
     /**
      * 保存文档块
      */
-    public function save(Chunk $chunk): void
+    public function save(Chunk $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->persist($chunk);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     /**
      * 删除文档块
      */
-    public function remove(Chunk $chunk): void
+    public function remove(Chunk $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->remove($chunk);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

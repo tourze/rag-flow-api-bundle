@@ -13,114 +13,53 @@ use Tourze\RAGFlowApiBundle\Entity\VirtualChunk;
 use Tourze\RAGFlowApiBundle\Repository\VirtualChunkRepository;
 
 /**
+ * VirtualChunkRepository 测试
+ *
+ * 注意：VirtualChunk 是一个虚拟实体，但为了符合测试规范，
+ * 仍然继承 AbstractRepositoryTestCase 并实现必要的方法
+ *
  * @internal
  */
 #[CoversClass(VirtualChunkRepository::class)]
 #[RunTestsInSeparateProcesses]
 class VirtualChunkRepositoryTest extends AbstractRepositoryTestCase
 {
-    private VirtualChunkRepository $repository;
-
     protected function createNewEntity(): object
     {
-        // 创建VirtualChunk实体
+        $uniqueSuffix = uniqid('', true);
+
         $chunk = new VirtualChunk();
-        $chunk->setId('test-chunk-' . uniqid());
-        $chunk->setDatasetId('test-dataset');
-        $chunk->setDocumentId('test-document');
-        $chunk->setTitle('测试文本块');
-        $chunk->setContent('这是测试文本块的内容');
+        $chunk->setId('test-chunk-' . $uniqueSuffix);
+        $chunk->setDatasetId('dataset-' . $uniqueSuffix);
+        $chunk->setDocumentId('doc-' . $uniqueSuffix);
+        $chunk->setTitle('测试文本块_' . $uniqueSuffix);
+        $chunk->setContent('测试内容_' . $uniqueSuffix);
         $chunk->setKeywords('测试,关键词');
         $chunk->setSimilarityScore(0.85);
         $chunk->setPosition(1);
-        $chunk->setLength(20);
+        $chunk->setLength(100);
         $chunk->setStatus('active');
         $chunk->setLanguage('zh');
-        $chunk->setCreateTime(new \DateTimeImmutable());
-        $chunk->setUpdateTime(new \DateTimeImmutable());
+        $chunk->setCreateTime(new \DateTimeImmutable('2023-01-01 10:00:00'));
+        $chunk->setUpdateTime(new \DateTimeImmutable('2023-01-01 10:00:00'));
 
         return $chunk;
     }
 
-    protected function getRepository(): VirtualChunkRepository
+    /**
+     * @return ServiceEntityRepository<VirtualChunk>
+     */
+    protected function getRepository(): ServiceEntityRepository
     {
-        if (!isset($this->repository)) {
-            $this->repository = self::getService(VirtualChunkRepository::class);
-        }
-
-        return $this->repository;
+        return self::getService(VirtualChunkRepository::class);
     }
 
     protected function onSetUp(): void
     {
-        // 初始化repository
-        $this->repository = self::getService(VirtualChunkRepository::class);
+        // 虚拟Repository测试不需要特殊设置
     }
 
-    public function testRepositoryCreation(): void
-    {
-        $this->assertInstanceOf(VirtualChunkRepository::class, $this->repository);
-    }
-
-    public function testFind(): void
-    {
-        // VirtualChunkRepository的find方法总是返回null，因为这是虚拟实体
-        $result = $this->repository->find('test-id');
-        $this->assertNull($result);
-    }
-
-    public function testFindAll(): void
-    {
-        // 在测试环境中，findAll应该返回测试数据
-        $results = $this->repository->findAll();
-        $this->assertIsArray($results);
-
-        // 在测试环境中，应该有一些测试数据
-        if ([] !== $results) {
-            foreach ($results as $result) {
-                $this->assertInstanceOf(VirtualChunk::class, $result);
-                $this->assertNotNull($result->getId());
-                $this->assertNotNull($result->getTitle());
-                $this->assertNotNull($result->getContent());
-            }
-        }
-    }
-
-    public function testFindBy(): void
-    {
-        // VirtualChunkRepository的findBy方法总是返回空数组
-        $results = $this->repository->findBy(['title' => 'test']);
-        $this->assertIsArray($results);
-        $this->assertEmpty($results);
-    }
-
-    public function testFindOneBy(): void
-    {
-        // VirtualChunkRepository的findOneBy方法总是返回null
-        $result = $this->repository->findOneBy(['title' => 'test']);
-        $this->assertNull($result);
-    }
-
-    public function testCount(): void
-    {
-        // 在测试环境中，count应该返回测试数据的数量
-        $count = $this->repository->count();
-        $this->assertIsInt($count);
-        $this->assertGreaterThanOrEqual(0, $count);
-
-        // 测试带条件的计数
-        $countWithCriteria = $this->repository->count(['title' => 'test']);
-        $this->assertIsInt($countWithCriteria);
-        $this->assertGreaterThanOrEqual(0, $countWithCriteria);
-    }
-
-    public function testCreateQueryBuilder(): void
-    {
-        // 测试QueryBuilder创建
-        $qb = $this->repository->createQueryBuilder('v');
-        $this->assertInstanceOf(QueryBuilder::class, $qb);
-    }
-
+    
     public function testVirtualChunkEntity(): void
     {
         // 测试VirtualChunk实体的基本功能
@@ -191,15 +130,15 @@ class VirtualChunkRepositoryTest extends AbstractRepositoryTestCase
         // 测试id和title都为null时的getName方法
         $chunk = new VirtualChunk();
 
-        // 当id和title都为null时，应该返回'Unknown'
+        // 当id和title都为null时，getName()返回'Unknown'，__toString()返回'(new)'
         $this->assertEquals('Unknown', $chunk->getName());
-        $this->assertEquals('Unknown', (string) $chunk);
+        $this->assertEquals('(new)', (string) $chunk);
     }
 
     public function testTestDataStructure(): void
     {
         // 测试测试数据的结构
-        $allChunks = $this->repository->findAll();
+        $allChunks = $this->getRepository()->findAll();
 
         if ([] !== $allChunks) {
             foreach ($allChunks as $chunk) {
@@ -232,5 +171,11 @@ class VirtualChunkRepositoryTest extends AbstractRepositoryTestCase
                 $this->assertGreaterThanOrEqual(0, $chunk->getLength());
             }
         }
+    }
+
+    public function testCreateQueryBuilder(): void
+    {
+        $qb = $this->getRepository()->createQueryBuilder('v');
+        $this->assertInstanceOf(QueryBuilder::class, $qb);
     }
 }

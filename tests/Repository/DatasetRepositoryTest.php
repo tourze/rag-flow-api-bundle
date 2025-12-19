@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Repository;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
 use Tourze\RAGFlowApiBundle\Entity\ChatAssistant;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\Document;
@@ -18,23 +19,59 @@ use Tourze\RAGFlowApiBundle\Repository\DatasetRepository;
  */
 #[CoversClass(DatasetRepository::class)]
 #[RunTestsInSeparateProcesses]
-class DatasetRepositoryTest extends AbstractIntegrationTestCase
+class DatasetRepositoryTest extends AbstractRepositoryTestCase
 {
-    private DatasetRepository $repository;
-
-    private RAGFlowInstance $testInstance;
+    private static ?RAGFlowInstance $testInstance = null;
+    private static int $datasetCounter = 0;
 
     protected function onSetUp(): void
     {
-        $this->repository = self::getService(DatasetRepository::class);
+        // AbstractRepositoryTestCase 需要此方法
+        // 初始化工作在 createNewEntity 和 createTestDataset 中完成
+    }
 
-        // 创建测试用的 RAGFlowInstance
-        $this->testInstance = new RAGFlowInstance();
-        $this->testInstance->setName('test-instance-' . uniqid());
-        $this->testInstance->setApiUrl('https://test.example.com/api');
-        $this->testInstance->setApiKey('test-key');
-        $this->testInstance->setEnabled(true);
-        $this->persistAndFlush($this->testInstance);
+    /**
+     * @return ServiceEntityRepository<Dataset>
+     */
+    protected function getRepository(): ServiceEntityRepository
+    {
+        return self::getService(DatasetRepository::class);
+    }
+
+    protected function createNewEntity(): object
+    {
+        // 确保 testInstance 存在
+        if (null === self::$testInstance) {
+            self::$testInstance = new RAGFlowInstance();
+            self::$testInstance->setName('test-instance-' . uniqid());
+            self::$testInstance->setApiUrl('https://test.example.com/api');
+            self::$testInstance->setApiKey('test-key');
+            self::$testInstance->setEnabled(true);
+            self::getEntityManager()->persist(self::$testInstance);
+            self::getEntityManager()->flush();
+        }
+
+        $dataset = new Dataset();
+        $dataset->setRagFlowInstance(self::$testInstance);
+        $dataset->setName('test-dataset-' . (++self::$datasetCounter) . '-' . uniqid());
+        $dataset->setDescription('Test dataset for repository testing');
+
+        return $dataset;
+    }
+
+    /**
+     * 确保测试实例存在
+     */
+    private function ensureTestInstance(): void
+    {
+        if (null === self::$testInstance) {
+            self::$testInstance = new RAGFlowInstance();
+            self::$testInstance->setName('test-instance-' . uniqid());
+            self::$testInstance->setApiUrl('https://test.example.com/api');
+            self::$testInstance->setApiKey('test-key');
+            self::$testInstance->setEnabled(true);
+            $this->persistAndFlush(self::$testInstance);
+        }
     }
 
     /**
@@ -42,15 +79,12 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
      */
     private function createTestDataset(): Dataset
     {
+        $this->ensureTestInstance();
+
         $dataset = new Dataset();
-        $dataset->setRagFlowInstance($this->testInstance);
+        $dataset->setRagFlowInstance(self::$testInstance);
 
         return $dataset;
-    }
-
-    public function testRepositoryCreation(): void
-    {
-        $this->assertInstanceOf(DatasetRepository::class, $this->repository);
     }
 
     public function testFindByRemoteId(): void
@@ -63,14 +97,17 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         /** @var Dataset $persistedDataset */
         $persistedDataset = $this->persistAndFlush($dataset);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试通过远程ID查找
-        $foundDataset = $this->repository->findByRemoteId('remote-dataset-123');
+        $foundDataset = $repository->findByRemoteId('remote-dataset-123');
         $this->assertNotNull($foundDataset);
         $this->assertEquals($persistedDataset->getId(), $foundDataset->getId());
         $this->assertEquals('remote-dataset-123', $foundDataset->getRemoteId());
 
         // 测试查找不存在的远程ID
-        $notFound = $this->repository->findByRemoteId('non-existent-remote-id');
+        $notFound = $repository->findByRemoteId('non-existent-remote-id');
         $this->assertNull($notFound);
     }
 
@@ -96,8 +133,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $disabledDataset->setEnabled(false);
         $this->persistAndFlush($disabledDataset);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试查找启用的数据集
-        $enabledDatasets = $this->repository->findEnabled();
+        $enabledDatasets = $repository->findEnabled();
         $this->assertGreaterThanOrEqual(2, count($enabledDatasets));
 
         // 验证结果中的数据集都是启用状态
@@ -123,15 +163,18 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
             $this->persistAndFlush($dataset);
         }
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试按名称模式查找
-        $customerDatasets = $this->repository->findByNamePattern('客户');
+        $customerDatasets = $repository->findByNamePattern('客户');
         $this->assertGreaterThanOrEqual(2, count($customerDatasets));
 
         foreach ($customerDatasets as $dataset) {
             $this->assertStringContainsString('客户', $dataset->getName());
         }
 
-        $techDatasets = $this->repository->findByNamePattern('技术');
+        $techDatasets = $repository->findByNamePattern('技术');
         $this->assertGreaterThanOrEqual(1, count($techDatasets));
 
         foreach ($techDatasets as $dataset) {
@@ -147,8 +190,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $recentDataset->setDescription('用于测试最近创建查询的数据集');
         $this->persistAndFlush($recentDataset);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试查找最近创建的数据集
-        $recentDatasets = $this->repository->findRecentlyCreated(10);
+        $recentDatasets = $repository->findRecentlyCreated(10);
         $this->assertGreaterThanOrEqual(1, count($recentDatasets));
 
         // 验证我们创建的数据集在结果中
@@ -186,16 +232,19 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
             $this->persistAndFlush($dataset);
         }
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试第一页
-        $firstPage = $this->repository->findWithPagination(1, 10);
+        $firstPage = $repository->findWithPagination(1, 10);
         $this->assertCount(10, $firstPage);
 
         // 测试第二页
-        $secondPage = $this->repository->findWithPagination(2, 10);
+        $secondPage = $repository->findWithPagination(2, 10);
         $this->assertCount(10, $secondPage);
 
         // 测试第三页
-        $thirdPage = $this->repository->findWithPagination(3, 10);
+        $thirdPage = $repository->findWithPagination(3, 10);
         $this->assertGreaterThanOrEqual(5, count($thirdPage)); // 至少有5个，可能有其他测试创建的
 
         // 验证分页结果不重复
@@ -206,7 +255,9 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
 
     public function testCountTotalDatasets(): void
     {
-        $initialCount = $this->repository->countTotalDatasets();
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $initialCount = $repository->countTotalDatasets();
 
         // 添加数据集
         for ($i = 1; $i <= 3; ++$i) {
@@ -216,13 +267,15 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
             $this->persistAndFlush($dataset);
         }
 
-        $finalCount = $this->repository->countTotalDatasets();
+        $finalCount = $repository->countTotalDatasets();
         $this->assertEquals($initialCount + 3, $finalCount);
     }
 
     public function testCountEnabledDatasets(): void
     {
-        $initialEnabledCount = $this->repository->countEnabledDatasets();
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $initialEnabledCount = $repository->countEnabledDatasets();
 
         // 添加启用的数据集
         $enabledDataset = $this->createTestDataset();
@@ -238,7 +291,7 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $disabledDataset->setEnabled(false);
         $this->persistAndFlush($disabledDataset);
 
-        $finalEnabledCount = $this->repository->countEnabledDatasets();
+        $finalEnabledCount = $repository->countEnabledDatasets();
         $this->assertEquals($initialEnabledCount + 1, $finalEnabledCount);
     }
 
@@ -246,14 +299,20 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
     {
         $remoteId = 'find-or-create-dataset-123';
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
+        // 确保测试实例存在
+        $this->ensureTestInstance();
+
         // 第一次调用应该创建新实体
-        $firstResult = $this->repository->findOrCreateByRemoteId($remoteId, $this->testInstance);
+        $firstResult = $repository->findOrCreateByRemoteId($remoteId, self::$testInstance);
         $this->assertInstanceOf(Dataset::class, $firstResult);
         $this->assertEquals($remoteId, $firstResult->getRemoteId());
         $this->assertNotNull($firstResult->getId()); // 应该已经持久化
 
         // 第二次调用应该返回相同的实体
-        $secondResult = $this->repository->findOrCreateByRemoteId($remoteId, $this->testInstance);
+        $secondResult = $repository->findOrCreateByRemoteId($remoteId, self::$testInstance);
         $this->assertEquals($firstResult->getId(), $secondResult->getId());
         $this->assertEquals($remoteId, $secondResult->getRemoteId());
     }
@@ -275,16 +334,19 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
             $this->persistAndFlush($dataset);
         }
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 搜索包含"客户"的数据集
-        $customerDatasets = $this->repository->searchByKeywords('客户');
+        $customerDatasets = $repository->searchByKeywords('客户');
         $this->assertGreaterThanOrEqual(1, count($customerDatasets));
 
         // 搜索包含"技术"的数据集
-        $techDatasets = $this->repository->searchByKeywords('技术');
+        $techDatasets = $repository->searchByKeywords('技术');
         $this->assertGreaterThanOrEqual(1, count($techDatasets));
 
         // 搜索不存在的关键词
-        $noResultDatasets = $this->repository->searchByKeywords('不存在的关键词');
+        $noResultDatasets = $repository->searchByKeywords('不存在的关键词');
         $this->assertEmpty($noResultDatasets);
     }
 
@@ -307,8 +369,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
             $this->persistAndFlush($document);
         }
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试带文档统计的查找
-        $datasetsWithStats = $this->repository->findWithDocumentStats();
+        $datasetsWithStats = $repository->findWithDocumentStats();
         $this->assertNotEmpty($datasetsWithStats);
 
         // 验证我们的测试数据集在结果中
@@ -352,8 +417,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $dataset2->setChunkConfig($config2);
         $this->persistAndFlush($dataset2);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试按块方法查找
-        $naiveDatasets = $this->repository->findByChunkConfig('chunk_method', 'naive');
+        $naiveDatasets = $repository->findByChunkConfig('chunk_method', 'naive');
         $this->assertGreaterThanOrEqual(1, count($naiveDatasets));
 
         foreach ($naiveDatasets as $dataset) {
@@ -364,7 +432,7 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         }
 
         // 测试按块大小查找
-        $largeChunkDatasets = $this->repository->findByChunkConfig('chunk_size', 1024);
+        $largeChunkDatasets = $repository->findByChunkConfig('chunk_size', 1024);
         $this->assertGreaterThanOrEqual(1, count($largeChunkDatasets));
 
         foreach ($largeChunkDatasets as $dataset) {
@@ -399,8 +467,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $document->setDataset($persistedDatasetWithDocs);
         $this->persistAndFlush($document);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试查找空数据集
-        $emptyDatasets = $this->repository->findEmptyDatasets();
+        $emptyDatasets = $repository->findEmptyDatasets();
         $this->assertNotEmpty($emptyDatasets);
 
         // 验证空数据集在结果中
@@ -436,8 +507,11 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $chatAssistant->setDataset($persistedDatasetWithAssistant);
         $this->persistAndFlush($chatAssistant);
 
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+
         // 测试查找有聊天助手的数据集
-        $datasetsWithAssistants = $this->repository->findDatasetsWithChatAssistants();
+        $datasetsWithAssistants = $repository->findDatasetsWithChatAssistants();
         $this->assertNotEmpty($datasetsWithAssistants);
 
         // 验证有助手的数据集在结果中
@@ -474,11 +548,172 @@ class DatasetRepositoryTest extends AbstractIntegrationTestCase
         $this->persistAndFlush($chatAssistant);
 
         // 测试获取使用统计
-        $stats = $this->repository->getDatasetUsageStats($persistedDataset);
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $stats = $repository->getDatasetUsageStats($persistedDataset);
 
         $this->assertArrayHasKey('document_count', $stats);
         $this->assertArrayHasKey('assistant_count', $stats);
         $this->assertGreaterThanOrEqual(1, $stats['document_count']);
         $this->assertGreaterThanOrEqual(1, $stats['assistant_count']);
+    }
+
+    public function testFindByInstance(): void
+    {
+        // 创建第二个 instance
+        $anotherInstance = new RAGFlowInstance();
+        $anotherInstance->setName('another-instance-' . uniqid());
+        $anotherInstance->setApiUrl('https://another.example.com/api');
+        $anotherInstance->setApiKey('another-key');
+        $anotherInstance->setEnabled(true);
+        $this->persistAndFlush($anotherInstance);
+
+        // 为 testInstance 创建数据集
+        $dataset1 = $this->createTestDataset();
+        $dataset1->setName('Instance 1 Dataset 1');
+        $dataset1->setDescription('Dataset for test instance');
+        $this->persistAndFlush($dataset1);
+
+        // 为 anotherInstance 创建数据集
+        $dataset2 = new Dataset();
+        $dataset2->setRagFlowInstance($anotherInstance);
+        $dataset2->setName('Instance 2 Dataset 1');
+        $dataset2->setDescription('Dataset for another instance');
+        $this->persistAndFlush($dataset2);
+
+        // 测试按实例查找
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $testInstanceDatasets = $repository->findByInstance(self::$testInstance);
+        $this->assertNotEmpty($testInstanceDatasets);
+
+        // 验证所有返回的数据集都属于正确的实例
+        foreach ($testInstanceDatasets as $dataset) {
+            $this->assertEquals(self::$testInstance->getId(), $dataset->getRagFlowInstance()->getId());
+        }
+    }
+
+    public function testFindByStatus(): void
+    {
+        // 创建不同状态的数据集
+        $dataset1 = $this->createTestDataset();
+        $dataset1->setName('Active Dataset');
+        $dataset1->setDescription('Active status dataset');
+        $dataset1->setStatus('active');
+        $this->persistAndFlush($dataset1);
+
+        $dataset2 = $this->createTestDataset();
+        $dataset2->setName('Inactive Dataset');
+        $dataset2->setDescription('Inactive status dataset');
+        $dataset2->setStatus('inactive');
+        $this->persistAndFlush($dataset2);
+
+        // 测试按状态查找
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $activeDatasets = $repository->findByStatus('active');
+        $this->assertNotEmpty($activeDatasets);
+
+        // 验证所有返回的数据集都是 active 状态
+        foreach ($activeDatasets as $dataset) {
+            $this->assertEquals('active', $dataset->getStatus());
+        }
+    }
+
+    public function testFindPendingSync(): void
+    {
+        // 创建一个需要同步的数据集（lastSyncTime 为 null 或很久以前）
+        $dataset = $this->createTestDataset();
+        $dataset->setName('Pending Sync Dataset');
+        $dataset->setDescription('Dataset that needs sync');
+        // lastSyncTime 默认为 null，所以应该被查找到
+        $this->persistAndFlush($dataset);
+
+        // 测试查找需要同步的数据集
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $since = new \DateTimeImmutable('-1 hour');
+        $pendingDatasets = $repository->findPendingSync($since);
+
+        $this->assertNotEmpty($pendingDatasets);
+
+        // 验证我们创建的数据集在结果中
+        $found = false;
+        foreach ($pendingDatasets as $pendingDataset) {
+            if ($pendingDataset->getId() === $dataset->getId()) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
+    }
+
+    public function testFindWithFilters(): void
+    {
+        // 创建测试数据集
+        $dataset1 = $this->createTestDataset();
+        $dataset1->setName('Filter Test Dataset 1');
+        $dataset1->setDescription('Dataset for filter testing');
+        $dataset1->setStatus('active');
+        $this->persistAndFlush($dataset1);
+
+        $dataset2 = $this->createTestDataset();
+        $dataset2->setName('Another Dataset');
+        $dataset2->setDescription('Another dataset');
+        $dataset2->setStatus('inactive');
+        $this->persistAndFlush($dataset2);
+
+        // 测试按名称过滤
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $result = $repository->findWithFilters(['name' => 'Filter Test'], 1, 10);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('items', $result);
+        $this->assertArrayHasKey('total', $result);
+        $this->assertGreaterThanOrEqual(1, $result['total']);
+
+        // 验证返回的数据集名称包含过滤词
+        foreach ($result['items'] as $dataset) {
+            $this->assertStringContainsString('Filter Test', $dataset->getName());
+        }
+    }
+
+    public function testSave(): void
+    {
+        $dataset = $this->createTestDataset();
+        $dataset->setName('Save Test Dataset');
+        $dataset->setDescription('Dataset for save testing');
+
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $repository->save($dataset);
+
+        // 验证已保存
+        $this->assertNotNull($dataset->getId());
+
+        // 验证可以重新查找到
+        $found = $repository->find($dataset->getId());
+        $this->assertInstanceOf(Dataset::class, $found);
+        $this->assertEquals('Save Test Dataset', $found->getName());
+    }
+
+    public function testRemove(): void
+    {
+        $dataset = $this->createTestDataset();
+        $dataset->setName('Remove Test Dataset');
+        $dataset->setDescription('Dataset for remove testing');
+        $this->persistAndFlush($dataset);
+
+        $id = $dataset->getId();
+        $this->assertNotNull($id);
+
+        /** @var DatasetRepository $repository */
+        $repository = $this->getRepository();
+        $repository->remove($dataset);
+
+        // 验证已删除
+        $found = $repository->find($id);
+        $this->assertNull($found);
     }
 }

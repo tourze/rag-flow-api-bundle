@@ -16,7 +16,7 @@ use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
  * @extends ServiceEntityRepository<LlmModel>
  */
 #[AsRepository(entityClass: LlmModel::class)]
-class LlmModelRepository extends ServiceEntityRepository
+final class LlmModelRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -212,5 +212,27 @@ class LlmModelRepository extends ServiceEntityRepository
         ;
 
         return is_int($result) ? $result : 0;
+    }
+
+    /**
+     * 保存 LLM 模型
+     */
+    public function save(LlmModel $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * 删除 LLM 模型
+     */
+    public function remove(LlmModel $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

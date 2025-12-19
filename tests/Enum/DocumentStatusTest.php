@@ -6,8 +6,7 @@ namespace Tourze\RAGFlowApiBundle\Tests\Enum;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 
 /**
@@ -16,13 +15,8 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
  * @internal
  */
 #[CoversClass(DocumentStatus::class)]
-#[RunTestsInSeparateProcesses]
-class DocumentStatusTest extends AbstractIntegrationTestCase
+class DocumentStatusTest extends AbstractEnumTestCase
 {
-    protected function onSetUp(): void
-    {
-        // 枚举测试不需要特殊的设置逻辑
-    }
 
     /**
      * @return array<string, array{DocumentStatus, string}>
@@ -349,5 +343,17 @@ class DocumentStatusTest extends AbstractIntegrationTestCase
 
         // 确保可以转换回数字状态码
         $this->assertSame(1, $status->toNumeric());
+    }
+
+    public function testToArray(): void
+    {
+        foreach (DocumentStatus::cases() as $status) {
+            $result = $status->toArray();
+            $this->assertIsArray($result);
+            $this->assertArrayHasKey('value', $result);
+            $this->assertArrayHasKey('label', $result);
+            $this->assertEquals($status->value, $result['value']);
+            $this->assertEquals($status->getLabel(), $result['label']);
+        }
     }
 }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\StopParsingRequest;
 
 /**
  * @internal
  */
 #[CoversClass(StopParsingRequest::class)]
-class StopParsingRequestTest extends TestCase
+class StopParsingRequestTest extends RequestTestCase
 {
     public function testRequestCreation(): void
     {

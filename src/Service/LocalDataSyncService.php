@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Tourze\RAGFlowApiBundle\Entity\ChatAssistant;
 use Tourze\RAGFlowApiBundle\Entity\Chunk;
@@ -26,6 +27,7 @@ use Tourze\RAGFlowApiBundle\Service\Mapper\DatasetMapper;
 use Tourze\RAGFlowApiBundle\Service\Mapper\DocumentMapper;
 use Tourze\RAGFlowApiBundle\Service\Mapper\LlmModelMapper;
 
+#[WithMonologChannel(channel: 'rag_flow_api')]
 class LocalDataSyncService
 {
     public function __construct(

@@ -5,34 +5,30 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Tests\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\RAGFlowApiBundle\Service\RAGFlowUrlService;
 
 /**
  * @internal
  */
 #[CoversClass(RAGFlowUrlService::class)]
-#[RunTestsInSeparateProcesses]
-class RAGFlowUrlServiceTest extends AbstractIntegrationTestCase
+class RAGFlowUrlServiceTest extends TestCase
 {
-    private RAGFlowUrlService $urlService;
-
-    protected function onSetUp(): void
+    public function testServiceCanBeInstantiatedWithoutUrlGenerator(): void
     {
-        $this->urlService = self::getService(RAGFlowUrlService::class);
+        $service = new RAGFlowUrlService(null);
+
+        $this->assertInstanceOf(RAGFlowUrlService::class, $service);
     }
 
-    public function testServiceCanBeInstantiated(): void
+    public function testServiceCanBeInstantiatedWithUrlGenerator(): void
     {
-        $this->assertInstanceOf(RAGFlowUrlService::class, $this->urlService);
-    }
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $service = new RAGFlowUrlService($urlGenerator);
 
-    public function testServiceIsRegisteredInContainer(): void
-    {
-        $this->assertTrue(self::getContainer()->has(RAGFlowUrlService::class));
+        $this->assertInstanceOf(RAGFlowUrlService::class, $service);
     }
 
     public function testGenerateDocumentManagementPath(): void
@@ -40,7 +36,8 @@ class RAGFlowUrlServiceTest extends AbstractIntegrationTestCase
         $datasetId = 123;
         $expectedPath = "/admin/datasets/{$datasetId}/documents";
 
-        $result = $this->urlService->generateDocumentManagementPath($datasetId);
+        $service = new RAGFlowUrlService(null);
+        $result = $service->generateDocumentManagementPath($datasetId);
 
         $this->assertEquals($expectedPath, $result);
     }
@@ -50,7 +47,8 @@ class RAGFlowUrlServiceTest extends AbstractIntegrationTestCase
         $datasetId = 456;
         $expectedPath = "/admin/datasets/{$datasetId}/knowledge-graph";
 
-        $result = $this->urlService->generateKnowledgeGraphPath($datasetId);
+        $service = new RAGFlowUrlService(null);
+        $result = $service->generateKnowledgeGraphPath($datasetId);
 
         $this->assertEquals($expectedPath, $result);
     }
@@ -60,7 +58,8 @@ class RAGFlowUrlServiceTest extends AbstractIntegrationTestCase
         $datasetId = 789;
         $expectedPath = "/admin/datasets/{$datasetId}/documents/upload";
 
-        $result = $this->urlService->generateDocumentUploadPath($datasetId);
+        $service = new RAGFlowUrlService(null);
+        $result = $service->generateDocumentUploadPath($datasetId);
 
         $this->assertEquals($expectedPath, $result);
     }
@@ -70,7 +69,8 @@ class RAGFlowUrlServiceTest extends AbstractIntegrationTestCase
         $datasetId = 101;
         $expectedPath = "/admin/datasets/{$datasetId}";
 
-        $result = $this->urlService->generateDatasetDetailPath($datasetId);
+        $service = new RAGFlowUrlService(null);
+        $result = $service->generateDatasetDetailPath($datasetId);
 
         $this->assertEquals($expectedPath, $result);
     }

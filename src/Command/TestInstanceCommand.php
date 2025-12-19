@@ -16,7 +16,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
     name: 'rag-flow:instance:test',
     description: '测试 RAGFlow 实例连接'
 )]
-class TestInstanceCommand extends Command
+final class TestInstanceCommand extends Command
 {
     public function __construct(
         private readonly RAGFlowInstanceManagerInterface $instanceManager,

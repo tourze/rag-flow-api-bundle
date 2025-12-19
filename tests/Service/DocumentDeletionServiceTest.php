@@ -180,11 +180,14 @@ class DocumentDeletionServiceTest extends AbstractIntegrationTestCase
         $doc->setDataset($dataset);
 
         $this->persistAndFlush($doc);
+        $docId = $doc->getId();
 
         // 删除文档
         $this->deletionService->deleteDocument($doc);
 
         // 验证已被删除
-        // 无意义的断言已移除
+        self::getEntityManager()->clear();
+        $deletedDoc = self::getEntityManager()->find(Document::class, $docId);
+        $this->assertNull($deletedDoc);
     }
 }

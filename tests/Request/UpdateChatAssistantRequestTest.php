@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\UpdateChatAssistantRequest;
 
 /**
  * @internal
  */
 #[CoversClass(UpdateChatAssistantRequest::class)]
-final class UpdateChatAssistantRequestTest extends TestCase
+final class UpdateChatAssistantRequestTest extends RequestTestCase
 {
     public function testPlaceholder(): void
     {
-        $this->markTestIncomplete('Test implementation pending');
+        self::markTestIncomplete('Test implementation pending');
     }
 }

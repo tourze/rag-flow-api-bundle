@@ -16,7 +16,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
     name: 'rag-flow:health:check',
     description: '检查 RAGFlow 系统健康状态'
 )]
-class HealthCheckCommand extends Command
+final class HealthCheckCommand extends Command
 {
     public function __construct(
         private readonly RAGFlowInstanceManagerInterface $instanceManager,

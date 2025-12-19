@@ -1,0 +1,110 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tourze\RAGFlowApiBundle\Controller\Api\Document;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Tourze\RAGFlowApiBundle\Entity\Dataset;
+use Tourze\RAGFlowApiBundle\Entity\Document;
+use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
+use Tourze\RAGFlowApiBundle\Service\DocumentSyncService;
+
+/**
+ * 重新上传文档到RAGFlow
+ */
+final class RetryUploadController extends AbstractController
+{
+    public function __construct(
+        private readonly DocumentRepository $documentRepository,
+        private readonly DocumentSyncService $documentSyncService,
+    ) {
+    }
+
+    #[Route(path: '/api/v1/documents/{documentId}/retry-upload', name: 'api_documents_retry_upload', methods: ['POST'])]
+    public function __invoke(int $documentId): JsonResponse
+    {
+        try {
+            $document = $this->validateAndGetDocument($documentId);
+            $this->validateDocumentForRetryUpload($document);
+
+            $dataset = $document->getDataset();
+            assert($dataset instanceof Dataset);
+
+            $this->documentSyncService->retryUpload($document, $dataset);
+
+            return $this->successResponse('Document uploaded successfully', [
+                'id' => $document->getId(),
+                'remoteId' => $document->getRemoteId(),
+                'status' => $document->getStatus(),
+                'lastSyncTime' => $document->getLastSyncTime()?->format('c'),
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retry upload', $e->getMessage());
+        }
+    }
+
+    /**
+     * 创建成功响应
+     *
+     * @param array<string, mixed> $data
+     */
+    private function successResponse(string $message, array $data = [], int $statusCode = Response::HTTP_OK): JsonResponse
+    {
+        return new JsonResponse([
+            'status' => 'success',
+            'message' => $message,
+            'data' => $data,
+            'timestamp' => date('c'),
+        ], $statusCode);
+    }
+
+    /**
+     * 创建错误响应
+     */
+    private function errorResponse(string $message, string $error = '', int $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
+    {
+        $data = [
+            'status' => 'error',
+            'message' => $message,
+            'timestamp' => date('c'),
+        ];
+
+        if ('' !== $error) {
+            $data['error'] = $error;
+        }
+
+        return new JsonResponse($data, $statusCode);
+    }
+
+    /**
+     * 验证并获取文档
+     */
+    private function validateAndGetDocument(int $documentId): Document
+    {
+        $document = $this->documentRepository->find($documentId);
+        if (!$document instanceof Document) {
+            throw new \InvalidArgumentException('Document not found');
+        }
+
+        return $document;
+    }
+
+    /**
+     * 验证文档是否可以重新上传
+     */
+    private function validateDocumentForRetryUpload(Document $document): void
+    {
+        if (!$document->isUploadRequired()) {
+            throw new \InvalidArgumentException('Document does not require upload');
+        }
+
+        $filePath = $document->getFilePath();
+        if (null === $filePath || '' === $filePath || !file_exists($filePath)) {
+            throw new \InvalidArgumentException('Local file not found');
+        }
+    }
+}

@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\CreateAgentRequest;
 
 /**
  * @internal
  */
 #[CoversClass(CreateAgentRequest::class)]
-class CreateAgentRequestTest extends TestCase
+class CreateAgentRequestTest extends RequestTestCase
 {
     /** @var array<string, mixed> */
     private array $testData;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
-        parent::setUp();
         $this->testData = [
             'name' => 'Test Agent',
             'description' => 'A test agent for unit testing',

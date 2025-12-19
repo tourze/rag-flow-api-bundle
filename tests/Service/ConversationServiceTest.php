@@ -12,7 +12,6 @@ use Tourze\RAGFlowApiBundle\Client\RAGFlowApiClient;
 use Tourze\RAGFlowApiBundle\Entity\ChatAssistant;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
-use Tourze\RAGFlowApiBundle\Repository\DatasetRepository;
 use Tourze\RAGFlowApiBundle\Request\ChatCompletionRequest;
 use Tourze\RAGFlowApiBundle\Request\CreateChatSessionRequest;
 use Tourze\RAGFlowApiBundle\Request\CreateConversationRequest;
@@ -27,6 +26,8 @@ use Tourze\RAGFlowApiBundle\Service\LocalDataSyncService;
 use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
 
 /**
+ * ConversationService 集成测试
+ *
  * @internal
  */
 #[CoversClass(ConversationService::class)]
@@ -36,35 +37,42 @@ class ConversationServiceTest extends AbstractIntegrationTestCase
     /** @var RAGFlowApiClient&MockObject */
     private RAGFlowApiClient $client;
 
-    /** @var RAGFlowInstanceManagerInterface&MockObject */
     private RAGFlowInstanceManagerInterface $instanceManager;
 
-    /** @var LocalDataSyncService&MockObject */
     private LocalDataSyncService $localDataSyncService;
-
-    /** @var DatasetRepository&MockObject */
-    private DatasetRepository $datasetRepository;
 
     private ConversationService $conversationService;
 
+    private RAGFlowInstance $ragFlowInstance;
+
     protected function onSetUp(): void
     {
+        // 创建真实的 RAGFlowInstance 并持久化
+        $this->ragFlowInstance = new RAGFlowInstance();
+        $this->ragFlowInstance->setName('Test Instance-' . uniqid('', true));
+        $this->ragFlowInstance->setApiUrl('https://test.ragflow.io/api');
+        $this->ragFlowInstance->setApiKey('test-api-key-' . uniqid('', true));
+        $this->ragFlowInstance->setIsDefault(true);
+
+        $em = self::getEntityManager();
+        $em->persist($this->ragFlowInstance);
+        $em->flush();
+
+        // Mock RAGFlowApiClient (网络请求客户端)
         $this->client = $this->createMock(RAGFlowApiClient::class);
+        // 让 Mock 客户端返回我们创建的 RAGFlowInstance
+        $this->client->method('getInstance')->willReturn($this->ragFlowInstance);
+
+        // Mock RAGFlowInstanceManagerInterface
         $this->instanceManager = $this->createMock(RAGFlowInstanceManagerInterface::class);
-        $this->localDataSyncService = $this->createMock(LocalDataSyncService::class);
-        $this->datasetRepository = $this->createMock(DatasetRepository::class);
-        $this->instanceManager->expects($this->once())->method('getDefaultClient')->willReturn($this->client);
-        // Only set services if they haven't been initialized yet
-        if (!self::getContainer()->has(RAGFlowInstanceManagerInterface::class)) {
-            self::getContainer()->set(RAGFlowInstanceManagerInterface::class, $this->instanceManager);
-        }
-        if (!self::getContainer()->has(LocalDataSyncService::class)) {
-            self::getContainer()->set(LocalDataSyncService::class, $this->localDataSyncService);
-        }
-        if (!self::getContainer()->has(DatasetRepository::class)) {
-            self::getContainer()->set(DatasetRepository::class, $this->datasetRepository);
-        }
+        $this->instanceManager->method('getDefaultClient')->willReturn($this->client);
+
+        // 将 Mock 服务注入到容器中
+        self::getContainer()->set(RAGFlowInstanceManagerInterface::class, $this->instanceManager);
+
+        // 从服务容器获取 ConversationService
         $this->conversationService = self::getService(ConversationService::class);
+        $this->localDataSyncService = self::getService(LocalDataSyncService::class);
     }
 
     public function testSendMessage(): void
@@ -144,40 +152,76 @@ class ConversationServiceTest extends AbstractIntegrationTestCase
 
     public function testCreateChatAssistant(): void
     {
+        // 创建真实的 Dataset 实体
+        $dataset1 = new Dataset();
+        $dataset1->setName('Test Dataset 1');
+        $dataset1->setRagFlowInstance($this->ragFlowInstance);
+        $dataset1->setRemoteId('dataset-1');
+
+        $dataset2 = new Dataset();
+        $dataset2->setName('Test Dataset 2');
+        $dataset2->setRagFlowInstance($this->ragFlowInstance);
+        $dataset2->setRemoteId('dataset-2');
+
+        $em = self::getEntityManager();
+        $em->persist($dataset1);
+        $em->persist($dataset2);
+        $em->flush();
+
         $name = 'Test Assistant';
         $datasetIds = ['dataset-1', 'dataset-2'];
         $options = ['temperature' => 0.5];
         $expectedResponse = ['id' => 'assistant-123', 'name' => 'Test Assistant', 'status' => 'ready'];
-        $mockDataset = $this->createMock(Dataset::class);
-        $mockChatAssistant = $this->createMock(ChatAssistant::class);
+
         $this->client->expects($this->once())->method('request')->with(self::callback(function ($request) {
             return $request instanceof CreateConversationRequest;
         }))->willReturn($expectedResponse);
-        $this->datasetRepository->expects($this->once())->method('findOneBy')->willReturn($mockDataset);
-        $this->localDataSyncService->expects($this->once())->method('syncChatAssistantFromApiWithDataset')->with($mockDataset, $expectedResponse)->willReturn($mockChatAssistant);
+
         $result = $this->conversationService->createChatAssistant($name, $datasetIds, $options);
-        $this->assertSame($mockChatAssistant, $result);
+
+        $this->assertInstanceOf(ChatAssistant::class, $result);
+        $this->assertSame('Test Assistant', $result->getName());
+
+        // 验证已持久化
+        $this->assertTrue($em->contains($result));
     }
 
     public function testListChatAssistants(): void
     {
+        // 创建真实的 Dataset 实体
+        $dataset1 = new Dataset();
+        $dataset1->setName('Dataset 1');
+        $dataset1->setRagFlowInstance($this->ragFlowInstance);
+        $dataset1->setRemoteId('dataset-1');
+
+        $dataset2 = new Dataset();
+        $dataset2->setName('Dataset 2');
+        $dataset2->setRagFlowInstance($this->ragFlowInstance);
+        $dataset2->setRemoteId('dataset-2');
+
+        $em = self::getEntityManager();
+        $em->persist($dataset1);
+        $em->persist($dataset2);
+        $em->flush();
+
         $filters = ['status' => 'active'];
         $apiResponse = ['data' => [['id' => 'assistant-1', 'name' => 'Assistant 1', 'dataset_id' => 'dataset-1'], ['id' => 'assistant-2', 'name' => 'Assistant 2', 'dataset_id' => 'dataset-2']]];
-        $mockDataset1 = $this->createMock(Dataset::class);
-        $mockDataset2 = $this->createMock(Dataset::class);
-        $mockAssistant1 = $this->createMock(ChatAssistant::class);
-        $mockAssistant2 = $this->createMock(ChatAssistant::class);
-        $mockInstance = $this->createMock(RAGFlowInstance::class);
-        $this->client->expects($this->once())->method('request')->with(self::callback(function ($request) {
+
+        $this->client->method('request')->with(self::callback(function ($request) {
             return $request instanceof ListChatAssistantsRequest;
         }))->willReturn($apiResponse);
-        $this->client->expects($this->exactly(4))->method('getInstance')->willReturn($mockInstance);
-        $this->datasetRepository->expects($this->exactly(2))->method('findOneBy')->willReturnOnConsecutiveCalls($mockDataset1, $mockDataset2);
-        $this->localDataSyncService->expects($this->exactly(2))->method('syncChatAssistantFromApi')->willReturnOnConsecutiveCalls($mockAssistant1, $mockAssistant2);
+
         $result = $this->conversationService->listChatAssistants($filters);
+
         $this->assertCount(2, $result);
-        $this->assertSame($mockAssistant1, $result[0]);
-        $this->assertSame($mockAssistant2, $result[1]);
+        $this->assertInstanceOf(ChatAssistant::class, $result[0]);
+        $this->assertInstanceOf(ChatAssistant::class, $result[1]);
+        $this->assertSame('Assistant 1', $result[0]->getName());
+        $this->assertSame('Assistant 2', $result[1]->getName());
+
+        // 验证已持久化
+        $this->assertTrue($em->contains($result[0]));
+        $this->assertTrue($em->contains($result[1]));
     }
 
     public function testUpdateChatAssistant(): void

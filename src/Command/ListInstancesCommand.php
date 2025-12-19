@@ -15,7 +15,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
     name: 'rag-flow:instance:list',
     description: '列出所有 RAGFlow 实例'
 )]
-class ListInstancesCommand extends Command
+final class ListInstancesCommand extends Command
 {
     public function __construct(
         private readonly RAGFlowInstanceManagerInterface $instanceManager,

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Tests\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
+use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\Document;
 use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
-use Tourze\RAGFlowApiBundle\Service\DocumentDataUpdater;
+use Tourze\RAGFlowApiBundle\Util\DocumentDataUpdater;
 
 /**
  * 文档数据更新器测试
@@ -18,14 +17,8 @@ use Tourze\RAGFlowApiBundle\Service\DocumentDataUpdater;
  * @internal
  */
 #[CoversClass(DocumentDataUpdater::class)]
-#[RunTestsInSeparateProcesses]
-final class DocumentDataUpdaterTest extends AbstractIntegrationTestCase
+final class DocumentDataUpdaterTest extends TestCase
 {
-    protected function onSetUp(): void
-    {
-        // 不需要额外的服务初始化
-    }
-
     private function createTestDocument(): Document
     {
         $instance = new RAGFlowInstance();
@@ -43,10 +36,6 @@ final class DocumentDataUpdaterTest extends AbstractIntegrationTestCase
         $document->setFilename('original.txt');
         $document->setType('txt');
         $document->setDataset($dataset);
-
-        $this->persistAndFlush($instance);
-        $this->persistAndFlush($dataset);
-        $this->persistAndFlush($document);
 
         return $document;
     }
@@ -97,7 +86,6 @@ final class DocumentDataUpdaterTest extends AbstractIntegrationTestCase
     {
         $document = $this->createTestDocument();
         $document->setSummary('Original Summary');
-        $this->persistAndFlush($document);
 
         $updater = new DocumentDataUpdater($document);
         $result = $updater->updateSummary(null);
@@ -121,7 +109,6 @@ final class DocumentDataUpdaterTest extends AbstractIntegrationTestCase
     {
         $document = $this->createTestDocument();
         $document->setLanguage('zh');
-        $this->persistAndFlush($document);
 
         $updater = new DocumentDataUpdater($document);
         $result = $updater->updateLanguage(null);
@@ -151,7 +138,6 @@ final class DocumentDataUpdaterTest extends AbstractIntegrationTestCase
         $document = $this->createTestDocument();
         $document->setSummary('Existing Summary');
         $document->setLanguage('fr');
-        $this->persistAndFlush($document);
 
         $updater = new DocumentDataUpdater($document);
 

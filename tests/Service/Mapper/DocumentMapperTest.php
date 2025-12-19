@@ -22,6 +22,42 @@ final class DocumentMapperTest extends TestCase
         $this->mapper = new DocumentMapper();
     }
 
+    public function testMapApiDataToEntity(): void
+    {
+        $document = new Document();
+        $apiData = [
+            'id' => 'doc-remote-123',
+            'name' => 'Test Document',
+            'filename' => 'test.pdf',
+            'type' => 'pdf',
+            'language' => 'zh',
+            'size' => 1024000,
+            'chunk_num' => 50,
+            'status' => 'completed',
+            'progress' => 0.85,
+            'progress_msg' => 'Processing completed',
+            'create_time' => 1640995200000,
+            'update_time' => '2024-01-15 10:30:45',
+        ];
+
+        $this->mapper->mapApiDataToEntity($document, $apiData);
+
+        $this->assertSame('doc-remote-123', $document->getRemoteId());
+        $this->assertSame('Test Document', $document->getName());
+        $this->assertSame('test.pdf', $document->getFilename());
+        $this->assertSame('pdf', $document->getType());
+        $this->assertSame('zh', $document->getLanguage());
+        $this->assertSame(1024000, $document->getSize());
+        $this->assertSame(50, $document->getChunkCount());
+        $this->assertSame('completed', $document->getStatus()->value);
+        $this->assertSame(85.0, $document->getProgress());
+        $this->assertSame('Processing completed', $document->getProgressMsg());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $document->getRemoteCreateTime());
+        $this->assertSame('2022-01-01', $document->getRemoteCreateTime()->format('Y-m-d'));
+        $this->assertInstanceOf(\DateTimeImmutable::class, $document->getRemoteUpdateTime());
+        $this->assertSame('2024-01-15', $document->getRemoteUpdateTime()->format('Y-m-d'));
+    }
+
     public function test完整数据映射(): void
     {
         $document = new Document();

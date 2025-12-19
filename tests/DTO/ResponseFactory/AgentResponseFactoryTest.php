@@ -81,8 +81,8 @@ class AgentResponseFactoryTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertInstanceOf(AgentDataDto::class, $result[0]);
         $this->assertInstanceOf(AgentDataDto::class, $result[1]);
-        $this->assertEquals('Agent 1', $result[0]->title);
-        $this->assertEquals('Agent 2', $result[1]->title);
+        $this->assertEquals('Agent 1', $result[0]->getTitle());
+        $this->assertEquals('Agent 2', $result[1]->getTitle());
     }
 
     public function testHydrateForSingleAgentRequest(): void
@@ -95,8 +95,8 @@ class AgentResponseFactoryTest extends TestCase
         $result = $this->invokePrivateMethod($this->factory, 'hydrate', [$testData]);
 
         $this->assertInstanceOf(AgentDataDto::class, $result);
-        $this->assertEquals('Test Agent', $result->title);
-        $this->assertEquals('1', $result->id);
+        $this->assertEquals('Test Agent', $result->getTitle());
+        $this->assertEquals('1', $result->getId());
     }
 
     public function testHydrateForEmptyData(): void
@@ -127,7 +127,7 @@ class AgentResponseFactoryTest extends TestCase
         $this->factory->setCurrentRequest($request);
 
         $payload = [
-            'code' => 200,
+            'code' => 0, // RAGFlow API 成功时返回 code=0
             'message' => 'success',
             'data' => ['id' => '1', 'title' => 'Test Agent'],
         ];

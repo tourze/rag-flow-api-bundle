@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
 use HttpClientBundle\Request\ApiRequest;
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\BaseRAGFlowRequest;
 
 /**
  * @internal
  */
 #[CoversClass(BaseRAGFlowRequest::class)]
-class BaseRAGFlowRequestTest extends TestCase
+class BaseRAGFlowRequestTest extends RequestTestCase
 {
     private BaseRAGFlowRequestTestConcrete $request;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
-        parent::setUp();
         $this->request = new BaseRAGFlowRequestTestConcrete();
     }
 

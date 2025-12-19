@@ -17,7 +17,7 @@ use Tourze\RAGFlowApiBundle\Entity\Conversation;
  * @extends ServiceEntityRepository<Conversation>
  */
 #[AsRepository(entityClass: Conversation::class)]
-class ConversationRepository extends ServiceEntityRepository
+final class ConversationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -266,18 +266,22 @@ class ConversationRepository extends ServiceEntityRepository
     /**
      * 保存对话
      */
-    public function save(Conversation $conversation): void
+    public function save(Conversation $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->persist($conversation);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     /**
      * 删除对话
      */
-    public function remove(Conversation $conversation): void
+    public function remove(Conversation $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->remove($conversation);
-        $this->getEntityManager()->flush();
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

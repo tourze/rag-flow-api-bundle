@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Tourze\RAGFlowApiBundle\Entity\Chunk;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
@@ -17,6 +18,7 @@ use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
 /**
  * 数据集文档同步服务
  */
+#[WithMonologChannel(channel: 'rag_flow_api')]
 final readonly class DatasetDocumentSyncService
 {
     public function __construct(

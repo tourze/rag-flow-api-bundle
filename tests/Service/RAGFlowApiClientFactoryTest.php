@@ -27,16 +27,17 @@ class RAGFlowApiClientFactoryTest extends AbstractIntegrationTestCase
 
     public function testCreateClient(): void
     {
+        $uniqueSuffix = uniqid('', true);
         $instance = new RAGFlowInstance();
-        $instance->setName('test-instance');
+        $instance->setName('test-instance-' . $uniqueSuffix);
         $instance->setApiUrl('http://ragflow-test.mixpwr.com/');
-        $instance->setApiKey('test_key');
+        $instance->setApiKey('test_key-' . uniqid('', true));
         $instance->setEnabled(true);
 
         $client = $this->factory->createClient($instance);
 
         $this->assertInstanceOf(RAGFlowApiClient::class, $client);
-        $this->assertEquals('test-instance', $client->getInstance()->getName());
+        $this->assertEquals('test-instance-' . $uniqueSuffix, $client->getInstance()->getName());
         $this->assertEquals('http://ragflow-test.mixpwr.com/', $client->getInstance()->getApiUrl());
     }
 }

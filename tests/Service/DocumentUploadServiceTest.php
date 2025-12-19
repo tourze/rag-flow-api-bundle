@@ -35,6 +35,67 @@ final class DocumentUploadServiceTest extends AbstractIntegrationTestCase
         $this->assertInstanceOf(DocumentUploadService::class, $this->uploadService);
     }
 
+    public function testExtractUploadedFiles(): void
+    {
+        // 创建临时测试文件
+        $tempFile1 = tempnam(sys_get_temp_dir(), 'test1');
+        $tempFile2 = tempnam(sys_get_temp_dir(), 'test2');
+        file_put_contents($tempFile1, 'test content 1');
+        file_put_contents($tempFile2, 'test content 2');
+
+        try {
+            $uploadedFile1 = new UploadedFile($tempFile1, 'test1.txt', 'text/plain', null, true);
+            $uploadedFile2 = new UploadedFile($tempFile2, 'test2.txt', 'text/plain', null, true);
+
+            $request = new Request();
+            $request->files->set('files', [$uploadedFile1, $uploadedFile2]);
+
+            $files = $this->uploadService->extractUploadedFiles($request);
+
+            $this->assertCount(2, $files);
+            $this->assertInstanceOf(UploadedFile::class, $files[0]);
+            $this->assertInstanceOf(UploadedFile::class, $files[1]);
+        } finally {
+            if (file_exists($tempFile1)) {
+                unlink($tempFile1);
+            }
+            if (file_exists($tempFile2)) {
+                unlink($tempFile2);
+            }
+        }
+    }
+
+    public function testProcessFileUploads(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Process Upload Instance');
+        $instance->setApiUrl('https://process-upload.example.com/api');
+        $instance->setApiKey('process-upload-key');
+
+        // Dataset没有remoteId，这样会在同步时失败
+        $dataset = new Dataset();
+        $dataset->setName('Process Upload Dataset');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        // 创建两个无效的上传文件（模拟上传错误）
+        $invalidUpload1 = new UploadedFile('/nonexistent/file1.txt', 'invalid1.txt', 'text/plain', UPLOAD_ERR_NO_FILE, true);
+        $invalidUpload2 = new UploadedFile('/nonexistent/file2.txt', 'invalid2.txt', 'text/plain', UPLOAD_ERR_NO_FILE, true);
+
+        $uploadedFiles = [$invalidUpload1, $invalidUpload2];
+
+        [$documents, $errors] = $this->uploadService->processFileUploads($dataset, $uploadedFiles);
+
+        // 应该有错误记录
+        $this->assertEmpty($documents);
+        $this->assertNotEmpty($errors);
+        $this->assertCount(2, $errors);
+        $this->assertStringContainsString('Invalid file upload', $errors[0]);
+        $this->assertStringContainsString('Invalid file upload', $errors[1]);
+    }
+
     public function test提取多个文件成功(): void
     {
         // 创建临时测试文件

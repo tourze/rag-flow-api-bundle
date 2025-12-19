@@ -105,6 +105,9 @@ class ApiResponseDtoTest extends TestCase
 
         // 应该不抛出异常
         $response->assertSuccess();
+
+        // 验证assertSuccess成功调用
+        $this->assertTrue($response->isSuccess());
     }
 
     public function testAssertSuccessThrowsException(): void

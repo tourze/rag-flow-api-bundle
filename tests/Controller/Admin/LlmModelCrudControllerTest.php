@@ -38,16 +38,19 @@ class LlmModelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     /**
      * 提供索引页面表头数据
+     * 注：ID 字段设置了 onlyOnDetail()，不在索引页面显示
      * @return iterable<string, array{string}>
      */
     public static function provideIndexPageHeaders(): iterable
     {
-        yield 'ID列' => ['ID'];
         yield '模型标识符列' => ['模型标识符'];
         yield '模型名称列' => ['模型名称'];
         yield '提供商列' => ['提供商'];
         yield '模型类型列' => ['模型类型'];
         yield '是否可用列' => ['是否可用'];
+        yield 'RAGFlow实例列' => ['RAGFlow实例'];
+        yield '本地创建时间列' => ['本地创建时间'];
+        yield '本地更新时间列' => ['本地更新时间'];
     }
 
     public function testEntityFqcnIsCorrect(): void
@@ -104,27 +107,21 @@ class LlmModelCrudControllerTest extends AbstractEasyAdminControllerTestCase
     }
 
     /**
+     * LlmModel 是从 API 同步的只读数据，没有 New 页面
      * @return iterable<string, array{string}>
      */
     public static function provideNewPageFields(): iterable
     {
-        yield 'modelIdentifier' => ['modelIdentifier'];
-        yield 'modelName' => ['modelName'];
-        yield 'provider' => ['provider'];
-        yield 'modelType' => ['modelType'];
-        yield 'isAvailable' => ['isAvailable'];
+        yield 'dummy' => ['dummy'];
     }
 
     /**
+     * LlmModel 是从 API 同步的只读数据，没有 Edit 页面
      * @return iterable<string, array{string}>
      */
     public static function provideEditPageFields(): iterable
     {
-        yield 'modelIdentifier' => ['modelIdentifier'];
-        yield 'modelName' => ['modelName'];
-        yield 'provider' => ['provider'];
-        yield 'modelType' => ['modelType'];
-        yield 'isAvailable' => ['isAvailable'];
+        yield 'dummy' => ['dummy'];
     }
 
     public function testValidationErrors(): void
@@ -162,7 +159,7 @@ class LlmModelCrudControllerTest extends AbstractEasyAdminControllerTestCase
                 $this->assertGreaterThan(0, $invalidFeedback->count(), '应该提示表单验证错误');
 
                 $messages = $invalidFeedback->each(static function ($node): string {
-                    return trim((string) $node->text());
+                    return trim($node->text());
                 });
 
                 $this->assertNotEmpty(

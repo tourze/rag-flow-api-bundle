@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Tourze\RAGFlowApiBundle\Client\RAGFlowApiClient;
 use Tourze\RAGFlowApiBundle\DTO\AgentDataDto;
@@ -18,6 +19,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowApiClientFactory;
 /**
  * RAGFlow智能体API服务
  */
+#[WithMonologChannel(channel: 'rag_flow_api')]
 final readonly class AgentApiService
 {
     public function __construct(

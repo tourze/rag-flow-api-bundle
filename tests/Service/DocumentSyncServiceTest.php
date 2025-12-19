@@ -125,7 +125,7 @@ final class DocumentSyncServiceTest extends AbstractIntegrationTestCase
         $this->documentService->expects($this->once())->method('upload')->willThrowException(new \Exception('Upload failed'));
         try {
             $this->syncService->syncDocumentToRemote($document, $dataset);
-            $this->fail('Expected exception was not thrown');
+            self::fail('Expected exception was not thrown');
         } catch (\Throwable $e) {
             // 可能是原始异常或 PHPUnit 包装的异常
             $this->assertStringContainsString('Upload failed', $e->getMessage());

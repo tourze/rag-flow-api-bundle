@@ -22,6 +22,17 @@ final class FileUploadValidatorTest extends TestCase
         $this->validator = new FileUploadValidator();
     }
 
+    public function testValidateUploadedFile(): void
+    {
+        $uploadedFile = $this->createMock(UploadedFile::class);
+        $uploadedFile->expects($this->once())->method('isValid')->willReturn(true);
+        $uploadedFile->expects($this->once())->method('getClientOriginalExtension')->willReturn('pdf');
+        $uploadedFile->expects($this->once())->method('getMimeType')->willReturn('application/pdf');
+        $this->validator->validateUploadedFile($uploadedFile);
+        // 如果没有抛出异常，则测试通过
+        $this->assertTrue(true);
+    }
+
     public function test验证有效PDF文件(): void
     {
         $uploadedFile = $this->createMock(UploadedFile::class);

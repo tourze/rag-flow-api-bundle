@@ -215,7 +215,7 @@ class DatasetCrudControllerTest extends AbstractEasyAdminControllerTestCase
                 $this->assertGreaterThan(0, $invalidFeedback->count(), '应该提示表单验证错误');
 
                 $messages = $invalidFeedback->each(static function ($node): string {
-                    return trim((string) $node->text());
+                    return trim($node->text());
                 });
 
                 $this->assertNotEmpty(

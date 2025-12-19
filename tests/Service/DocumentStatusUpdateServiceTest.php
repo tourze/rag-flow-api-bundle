@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use PHPUnit\Framework\MockObject\MockObject;
 use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
+use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\Document;
+use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 use Tourze\RAGFlowApiBundle\Service\DocumentStatusUpdateService;
 
 /**
- * 文档状态更新服务测试
+ * 文档状态更新服务集成测试
+ *
+ * 测试服务与真实 EntityManager 和数据库的交互
  *
  * @internal
  */
@@ -24,118 +26,230 @@ class DocumentStatusUpdateServiceTest extends AbstractIntegrationTestCase
 {
     private DocumentStatusUpdateService $service;
 
-    private Document&MockObject $document;
-
-    /** @var EntityManagerInterface&MockObject */
-    private EntityManagerInterface $entityManager;
-
     protected function onSetUp(): void
     {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->document = $this->createMock(Document::class);
-        self::getContainer()->set(EntityManagerInterface::class, $this->entityManager);
         $this->service = self::getService(DocumentStatusUpdateService::class);
+    }
+
+    /**
+     * 创建测试用的 Document 实体
+     */
+    private function createTestDocument(): Document
+    {
+        // 创建 RAGFlowInstance
+        $instance = new RAGFlowInstance();
+        $instance->setName('Test Instance');
+        $instance->setApiUrl('https://test.example.com');
+        $instance->setApiKey('test-key');
+
+        // 创建 Dataset
+        $dataset = new Dataset();
+        $dataset->setName('Test Dataset');
+        $dataset->setRagFlowInstance($instance);
+
+        // 创建 Document
+        $document = new Document();
+        $document->setName('Test Document');
+        $document->setDataset($dataset);
+
+        // 持久化
+        $em = self::getEntityManager();
+        $em->persist($instance);
+        $em->persist($dataset);
+        $em->persist($document);
+        $em->flush();
+
+        return $document;
     }
 
     public function testUpdateDocumentFromParseStatusWithProgress(): void
     {
+        $document = $this->createTestDocument();
         $parseStatus = ['progress' => 75.5, 'progress_msg' => '正在处理中', 'status' => 'processing'];
-        $this->document->expects($this->once())->method('setProgress')->with(75.5);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('正在处理中');
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::PROCESSING);
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->updateDocumentFromParseStatus($this->document, $parseStatus);
+
+        $this->service->updateDocumentFromParseStatus($document, $parseStatus);
+
+        // 清除实体管理器缓存并重新加载
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(75.5, $refreshedDocument->getProgress());
+        $this->assertSame('正在处理中', $refreshedDocument->getProgressMsg());
+        $this->assertSame(DocumentStatus::PROCESSING, $refreshedDocument->getStatus());
     }
 
     public function testUpdateDocumentFromParseStatusWithIntegerProgress(): void
     {
+        $document = $this->createTestDocument();
         $parseStatus = ['progress' => 50];
-        $this->document->expects($this->once())->method('setProgress')->with(50.0);
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->updateDocumentFromParseStatus($this->document, $parseStatus);
+
+        $this->service->updateDocumentFromParseStatus($document, $parseStatus);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(50.0, $refreshedDocument->getProgress());
     }
 
     public function testUpdateDocumentFromParseStatusWithStringProgress(): void
     {
+        $document = $this->createTestDocument();
         $parseStatus = ['progress' => '80.7'];
-        $this->document->expects($this->once())->method('setProgress')->with(80.7);
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->updateDocumentFromParseStatus($this->document, $parseStatus);
+
+        $this->service->updateDocumentFromParseStatus($document, $parseStatus);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(80.7, $refreshedDocument->getProgress());
     }
 
     public function testUpdateDocumentFromParseStatusWithInvalidStatus(): void
     {
+        $document = $this->createTestDocument();
         $parseStatus = ['status' => 'invalid_status'];
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::PENDING);
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->updateDocumentFromParseStatus($this->document, $parseStatus);
+
+        $this->service->updateDocumentFromParseStatus($document, $parseStatus);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(DocumentStatus::PENDING, $refreshedDocument->getStatus());
     }
 
     public function testUpdateDocumentFromParseStatusWithEmptyArray(): void
     {
+        $document = $this->createTestDocument();
+        $originalProgress = $document->getProgress();
+        $originalProgressMsg = $document->getProgressMsg();
+        $originalStatus = $document->getStatus();
+
         $parseStatus = [];
-        $this->document->expects($this->never())->method('setProgress');
-        $this->document->expects($this->never())->method('setProgressMsg');
-        $this->document->expects($this->never())->method('setStatus');
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->updateDocumentFromParseStatus($this->document, $parseStatus);
+        $this->service->updateDocumentFromParseStatus($document, $parseStatus);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        // 空数组不应该修改任何字段
+        $this->assertSame($originalProgress, $refreshedDocument->getProgress());
+        $this->assertSame($originalProgressMsg, $refreshedDocument->getProgressMsg());
+        $this->assertSame($originalStatus, $refreshedDocument->getStatus());
     }
 
     public function testResetDocumentForRetry(): void
     {
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::UPLOADING);
-        $this->document->expects($this->once())->method('setProgress')->with(0.0);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('准备重传...');
-        $this->document->expects($this->once())->method('setRemoteId')->with(null);
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->resetDocumentForRetry($this->document);
+        $document = $this->createTestDocument();
+        $document->setRemoteId('remote-123');
+        $document->setStatus(DocumentStatus::SYNC_FAILED);
+        $document->setProgress(50.0);
+        self::getEntityManager()->flush();
+
+        $this->service->resetDocumentForRetry($document);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(DocumentStatus::UPLOADING, $refreshedDocument->getStatus());
+        $this->assertSame(0.0, $refreshedDocument->getProgress());
+        $this->assertSame('准备重传...', $refreshedDocument->getProgressMsg());
+        $this->assertNull($refreshedDocument->getRemoteId());
     }
 
     public function testMarkDocumentUploadedWithRemoteId(): void
     {
+        $document = $this->createTestDocument();
         $remoteId = 'remote-doc-123';
-        $this->document->expects($this->once())->method('setRemoteId')->with($remoteId);
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::UPLOADED);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('上传成功');
-        $this->document->expects($this->once())->method('setLastSyncTime')->with(self::isInstanceOf(\DateTimeImmutable::class));
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->markDocumentUploaded($this->document, $remoteId);
+
+        $this->service->markDocumentUploaded($document, $remoteId);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame($remoteId, $refreshedDocument->getRemoteId());
+        $this->assertSame(DocumentStatus::UPLOADED, $refreshedDocument->getStatus());
+        $this->assertSame('上传成功', $refreshedDocument->getProgressMsg());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $refreshedDocument->getLastSyncTime());
     }
 
     public function testMarkDocumentUploadedWithoutRemoteId(): void
     {
-        $this->document->expects($this->never())->method('setRemoteId');
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::UPLOADED);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('上传成功');
-        $this->document->expects($this->once())->method('setLastSyncTime')->with(self::isInstanceOf(\DateTimeImmutable::class));
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->markDocumentUploaded($this->document);
+        $document = $this->createTestDocument();
+        $document->setRemoteId('existing-remote-id');
+        self::getEntityManager()->flush();
+
+        $this->service->markDocumentUploaded($document);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        // remoteId 应该保持不变
+        $this->assertSame('existing-remote-id', $refreshedDocument->getRemoteId());
+        $this->assertSame(DocumentStatus::UPLOADED, $refreshedDocument->getStatus());
+        $this->assertSame('上传成功', $refreshedDocument->getProgressMsg());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $refreshedDocument->getLastSyncTime());
     }
 
     public function testMarkDocumentUploadFailed(): void
     {
+        $document = $this->createTestDocument();
         $reason = 'Network timeout';
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::SYNC_FAILED);
-        $this->document->expects($this->once())->method('setProgressMsg')->with("上传失败: {$reason}");
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->markDocumentUploadFailed($this->document, $reason);
+
+        $this->service->markDocumentUploadFailed($document, $reason);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(DocumentStatus::SYNC_FAILED, $refreshedDocument->getStatus());
+        $this->assertSame("上传失败: {$reason}", $refreshedDocument->getProgressMsg());
     }
 
     public function testStartDocumentProcessing(): void
     {
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::PROCESSING);
-        $this->document->expects($this->once())->method('setProgress')->with(0.0);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('开始解析...');
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->startDocumentProcessing($this->document);
+        $document = $this->createTestDocument();
+
+        $this->service->startDocumentProcessing($document);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(DocumentStatus::PROCESSING, $refreshedDocument->getStatus());
+        $this->assertSame(0.0, $refreshedDocument->getProgress());
+        $this->assertSame('开始解析...', $refreshedDocument->getProgressMsg());
     }
 
     public function testStopDocumentProcessing(): void
     {
-        $this->document->expects($this->once())->method('setStatus')->with(DocumentStatus::COMPLETED);
-        $this->document->expects($this->once())->method('setProgressMsg')->with('解析已取消');
-        $this->entityManager->expects($this->once())->method('flush');
-        $this->service->stopDocumentProcessing($this->document);
+        $document = $this->createTestDocument();
+
+        $this->service->stopDocumentProcessing($document);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $refreshedDocument = $em->find(Document::class, $document->getId());
+
+        $this->assertNotNull($refreshedDocument);
+        $this->assertSame(DocumentStatus::COMPLETED, $refreshedDocument->getStatus());
+        $this->assertSame('解析已取消', $refreshedDocument->getProgressMsg());
     }
 
     public function testServiceIsReadonly(): void
@@ -158,6 +272,6 @@ class DocumentStatusUpdateServiceTest extends AbstractIntegrationTestCase
         $this->assertSame('entityManager', $parameter->getName());
         $type = $parameter->getType();
         $this->assertInstanceOf(\ReflectionNamedType::class, $type);
-        $this->assertSame(EntityManagerInterface::class, $type->getName());
+        $this->assertSame('Doctrine\ORM\EntityManagerInterface', $type->getName());
     }
 }

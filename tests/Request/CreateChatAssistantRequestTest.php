@@ -5,27 +5,24 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
 use HttpClientBundle\Request\AutoRetryRequest;
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\CreateChatAssistantRequest;
-use Tourze\RAGFlowApiBundle\Tests\TypeAssertionTrait;
 
 /**
  * @internal
  */
 #[CoversClass(CreateChatAssistantRequest::class)]
-class CreateChatAssistantRequestTest extends TestCase
+class CreateChatAssistantRequestTest extends RequestTestCase
 {
-    use TypeAssertionTrait;
     private string $testName;
 
     /** @var array<string> */
     private array $testDatasetIds;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
-        parent::setUp();
         $this->testName = 'Test Chat Assistant';
         $this->testDatasetIds = ['dataset1', 'dataset2', 'dataset3'];
     }
@@ -53,7 +50,7 @@ class CreateChatAssistantRequestTest extends TestCase
         $this->assertArrayHasKey('json', $options);
 
         $json = $options['json'];
-        self::assertArrayAccessible($json);
+        $this->assertIsArray($json);
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
         $this->assertArrayNotHasKey('avatar', $json);
@@ -85,7 +82,7 @@ class CreateChatAssistantRequestTest extends TestCase
 
         $options = $request->getRequestOptions();
         $json = $options['json'];
-        self::assertArrayAccessible($json);
+        $this->assertIsArray($json);
 
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
@@ -108,7 +105,7 @@ class CreateChatAssistantRequestTest extends TestCase
 
         $options = $request->getRequestOptions();
         $json = $options['json'];
-        self::assertArrayAccessible($json);
+        $this->assertIsArray($json);
 
         $this->assertEquals($this->testName, $json['name']);
         $this->assertEquals($this->testDatasetIds, $json['dataset_ids']);
@@ -137,7 +134,7 @@ class CreateChatAssistantRequestTest extends TestCase
         $request = new CreateChatAssistantRequest($this->testName, []);
         $options = $request->getRequestOptions();
         $json = $options['json'];
-        self::assertArrayAccessible($json);
+        $this->assertIsArray($json);
 
         $this->assertEquals([], $json['dataset_ids']);
     }

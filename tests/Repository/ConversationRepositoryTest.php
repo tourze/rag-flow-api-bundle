@@ -35,15 +35,16 @@ class ConversationRepositoryTest extends AbstractRepositoryTestCase
 
     protected function createNewEntity(): object
     {
-        $ragFlowInstance = $this->createRAGFlowInstance('测试实例');
-        $dataset = $this->createDataset($ragFlowInstance, '测试数据集');
+        $uniqueSuffix = uniqid('', true);
+        $ragFlowInstance = $this->createRAGFlowInstance('测试实例_' . $uniqueSuffix);
+        $dataset = $this->createDataset($ragFlowInstance, '测试数据集_' . $uniqueSuffix);
         $chatAssistant = new ChatAssistant();
-        $chatAssistant->setName('测试聊天助手');
+        $chatAssistant->setName('测试聊天助手_' . $uniqueSuffix);
         $chatAssistant->setDataset($dataset);
         $this->persistAndFlush($chatAssistant);
 
         $conversation = new Conversation();
-        $conversation->setRemoteId('test-conversation-' . uniqid());
+        $conversation->setRemoteId('test-conversation-' . $uniqueSuffix);
         $conversation->setRagFlowInstance($ragFlowInstance);
         $conversation->setTitle('测试对话');
         $conversation->setUserId('test-user');
@@ -361,6 +362,7 @@ class ConversationRepositoryTest extends AbstractRepositoryTestCase
         $conversation3->setRagFlowInstance($ragFlowInstance);
         $conversation3->setTitle('深度学习技术细节');
         $conversation3->setUserId('user1');
+        $conversation3->setChatAssistant($persistedChatAssistant);
         $conversation3->setStatus('active');
         $conversation3->setLastActivityTime(new \DateTimeImmutable('2024-01-01 09:00:00'));
         $this->persistAndFlush($conversation3);

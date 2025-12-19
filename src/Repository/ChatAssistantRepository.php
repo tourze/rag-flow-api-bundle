@@ -17,7 +17,7 @@ use Tourze\RAGFlowApiBundle\Entity\Dataset;
  * @extends ServiceEntityRepository<ChatAssistant>
  */
 #[AsRepository(entityClass: ChatAssistant::class)]
-class ChatAssistantRepository extends ServiceEntityRepository
+final class ChatAssistantRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

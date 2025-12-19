@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\Document;
@@ -15,6 +16,7 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
  *
  * 负责处理文档与远程API的同步操作
  */
+#[WithMonologChannel(channel: 'rag_flow_api')]
 final class DocumentSyncService
 {
     public function __construct(

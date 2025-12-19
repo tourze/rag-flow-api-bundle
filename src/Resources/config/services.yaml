@@ -1,238 +1,43 @@
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        public: false
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
 
-    # Controllers
-    Tourze\RAGFlowApiBundle\Controller\Admin\:
-        resource: '../../Controller/Admin/'
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Controller\:
+    resource: '../../Controller/'
 
-    Tourze\RAGFlowApiBundle\Controller\Api\:
-        resource: '../../Controller/Api/'
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Repository\:
+    resource: '../../Repository/'
 
-    # Context services
-    Tourze\RAGFlowApiBundle\Context\DocumentRequestContext:
-        autowire: true
-        autoconfigure: true
-        public: false
+  Tourze\RAGFlowApiBundle\Service\:
+    resource: '../../Service/'
+    public: true
 
-    # Commands
-    Tourze\RAGFlowApiBundle\Command\:
-        resource: '../../Command/'
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Command\:
+    resource: '../../Command/'
 
-    # Service classes (exclude value objects)
-    Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManager:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Client\:
+    resource: '../../Client/'
+    public: true
 
-    Tourze\RAGFlowApiBundle\Service\DocumentActionService:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Builder\:
+    resource: '../../Builder/'
+    public: true
 
-    Tourze\RAGFlowApiBundle\Service\DocumentService:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Orchestrator\:
+    resource: '../../Orchestrator/'
 
-    Tourze\RAGFlowApiBundle\Service\RAGFlowUrlService:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Validator\:
+    resource: '../../Validator/'
 
-    Tourze\RAGFlowApiBundle\Service\LocalDataSyncService:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Context\:
+    resource: '../../Context/'
 
-    Tourze\RAGFlowApiBundle\Service\RAGFlowFacadeService:
-        autowire: true
-        autoconfigure: true
-        public: true
+  Tourze\RAGFlowApiBundle\Helper\:
+    resource: '../../Helper/'
+    public: true
 
-    Tourze\RAGFlowApiBundle\Service\DatasetService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\ChatAssistantService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DatasetDocumentSyncService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\ChunkService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\ConversationService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AgentService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentOperationService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentUploadService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentValidationService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentUpdateService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentDeletionService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DatasetManagementService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DatasetDocumentManagementService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\CurlUploadService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\KnowledgeGraphService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentStatusUpdateService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentValidator:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AgentApiService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\DocumentSyncService:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AgentFactory:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AgentDataFormatter:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AgentRequestValidator:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\RAGFlowApiClientFactory:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    Tourze\RAGFlowApiBundle\Service\AttributeControllerLoader:
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    # Service interfaces
-    Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface:
-        alias: Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManager
-
-    Tourze\RAGFlowApiBundle\Client\RAGFlowApiClientInterface:
-        alias: Tourze\RAGFlowApiBundle\Client\RAGFlowApiClient
-
-    # Mapper services
-    Tourze\RAGFlowApiBundle\Service\Mapper\:
-        resource: '../../Service/Mapper/'
-        autowire: true
-        autoconfigure: true
-        public: false
-
-    # Orchestrator classes
-    Tourze\RAGFlowApiBundle\Orchestrator\:
-        resource: '../../Orchestrator/'
-        autowire: true
-        autoconfigure: true
-        public: false
-
-    # Request classes
-    Tourze\RAGFlowApiBundle\Request\:
-        resource: '../../Request/'
-        autowire: true
-        autoconfigure: true
-        public: false
-
-    # Validator classes
-    Tourze\RAGFlowApiBundle\Validator\:
-        resource: '../../Validator/'
-        autowire: true
-        autoconfigure: true
-        public: false
-
-    # Client classes
-    Tourze\RAGFlowApiBundle\Client\:
-        resource: '../../Client/'
-        autowire: true
-        autoconfigure: true
-        public: false
-
-    # Builder classes
-    Tourze\RAGFlowApiBundle\Builder\:
-        resource: '../../Builder/'
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    # Repository classes (Doctrine)
-    Tourze\RAGFlowApiBundle\Repository\:
-        resource: '../../Repository/'
-        autowire: true
-        autoconfigure: true
-        public: true
+  # 接口别名
+  Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface:
+    alias: Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManager

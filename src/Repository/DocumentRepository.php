@@ -18,7 +18,7 @@ use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
  * @extends ServiceEntityRepository<Document>
  */
 #[AsRepository(entityClass: Document::class)]
-class DocumentRepository extends ServiceEntityRepository
+final class DocumentRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -430,25 +430,6 @@ class DocumentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
-    }
-
-    /**
-     * 根据远程ID查找或创建文档
-     */
-    public function findOrCreateByRemoteId(string $remoteId): Document
-    {
-        $document = $this->findByRemoteId($remoteId);
-
-        if (null !== $document) {
-            return $document;
-        }
-
-        $newDocument = new Document();
-        $newDocument->setRemoteId($remoteId);
-        $this->getEntityManager()->persist($newDocument);
-        $this->getEntityManager()->flush();
-
-        return $newDocument;
     }
 
     /**

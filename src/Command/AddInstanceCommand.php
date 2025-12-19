@@ -17,7 +17,7 @@ use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
     name: 'rag-flow:instance:add',
     description: '添加 RAGFlow 实例'
 )]
-class AddInstanceCommand extends Command
+final class AddInstanceCommand extends Command
 {
     public function __construct(
         private readonly RAGFlowInstanceManagerInterface $instanceManager,

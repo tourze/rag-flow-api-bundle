@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\DeleteAgentRequest;
 
 /**
  * @internal
  */
 #[CoversClass(DeleteAgentRequest::class)]
-class DeleteAgentRequestTest extends TestCase
+class DeleteAgentRequestTest extends RequestTestCase
 {
     public function testRequestCreation(): void
     {

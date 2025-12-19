@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Tourze\RAGFlowApiBundle\Entity\Dataset;
 use Tourze\RAGFlowApiBundle\Entity\Document;
@@ -18,6 +19,7 @@ use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
  *
  * 将DatasetDocumentController中的复杂逻辑提取到此服务类，降低控制器复杂度
  */
+#[WithMonologChannel(channel: 'rag_flow_api')]
 class DatasetDocumentManagementService
 {
     public function __construct(

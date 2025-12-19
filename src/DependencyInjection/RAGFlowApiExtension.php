@@ -6,7 +6,7 @@ namespace Tourze\RAGFlowApiBundle\DependencyInjection;
 
 use Tourze\SymfonyDependencyServiceLoader\AutoExtension;
 
-class RAGFlowApiExtension extends AutoExtension
+final class RAGFlowApiExtension extends AutoExtension
 {
     protected function getConfigDir(): string
     {

@@ -13,7 +13,7 @@ use Tourze\RAGFlowApiBundle\Entity\RAGFlowInstance;
  * @extends ServiceEntityRepository<RAGFlowInstance>
  */
 #[AsRepository(entityClass: RAGFlowInstance::class)]
-class RAGFlowInstanceRepository extends ServiceEntityRepository
+final class RAGFlowInstanceRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

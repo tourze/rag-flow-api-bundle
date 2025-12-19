@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Controller\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -143,6 +144,7 @@ final class RAGFlowAgentCrudController extends AbstractCrudController
     /**
      * 同步单个智能体到远程
      */
+    #[AdminAction(routePath: '/sync-to-remote/{entityId}', routeName: 'sync_to_remote')]
     public function syncToRemote(AdminContext $context): Response
     {
         $agent = $context->getEntity()->getInstance();
@@ -174,6 +176,7 @@ final class RAGFlowAgentCrudController extends AbstractCrudController
     /**
      * 批量同步智能体
      */
+    #[AdminAction(routePath: '/batch-sync', routeName: 'batch_sync')]
     public function batchSync(AdminContext $context): Response
     {
         $instances = $this->instanceRepository->findBy(['enabled' => true]);

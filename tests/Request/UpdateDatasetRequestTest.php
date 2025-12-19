@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\UpdateDatasetRequest;
 
 /**
  * @internal
  */
 #[CoversClass(UpdateDatasetRequest::class)]
-class UpdateDatasetRequestTest extends TestCase
+class UpdateDatasetRequestTest extends RequestTestCase
 {
     public function testRequestPath(): void
     {

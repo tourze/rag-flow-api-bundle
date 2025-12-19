@@ -6,6 +6,7 @@ namespace Tourze\RAGFlowApiBundle\Client;
 
 use HttpClientBundle\Client\ApiClient;
 use HttpClientBundle\Request\RequestInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -35,6 +36,7 @@ use Tourze\RAGFlowApiBundle\Service\LocalDataSyncService;
 use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManager;
 use Tourze\RAGFlowApiBundle\Service\RAGFlowInstanceManagerInterface;
 
+#[WithMonologChannel(channel: 'rag_flow_api')]
 class RAGFlowApiClient extends ApiClient implements RAGFlowApiClientInterface, RAGFlowInstanceManagerInterface
 {
     private readonly ResponseFactoryResolver $responseFactoryResolver;

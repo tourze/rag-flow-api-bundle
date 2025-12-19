@@ -27,7 +27,7 @@ use Tourze\RAGFlowApiBundle\Context\DocumentRequestContext;
 use Tourze\RAGFlowApiBundle\Entity\Document;
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 use Tourze\RAGFlowApiBundle\Orchestrator\DocumentSyncOrchestrator;
-use Tourze\RAGFlowApiBundle\Service\ActionResult;
+use Tourze\RAGFlowApiBundle\DTO\ActionResult;
 use Tourze\RAGFlowApiBundle\Service\DocumentActionService;
 
 /**
@@ -340,11 +340,12 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
         $indexActions = $this->createIndexActions();
         $detailActions = $this->createDetailActions();
 
+        // 文档是从远程同步的，禁用NEW和EDIT操作
         return $actions
-            ->setPermission(Action::NEW, 'ROLE_ADMIN')
+            ->disable(Action::NEW)
+            ->disable(Action::EDIT)
             ->add(Crud::PAGE_INDEX, ...$indexActions)
             ->add(Crud::PAGE_DETAIL, ...$detailActions)
-            ->disable(Action::EDIT, Crud::PAGE_DETAIL)
         ;
     }
 
@@ -540,6 +541,19 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
     {
         $entity = new Document();
 
+        $this->mapIdFields($data, $entity);
+        $this->mapBasicFields($data, $entity);
+        $this->mapNumericFields($data, $entity);
+
+        return $entity;
+    }
+
+    /**
+     * 映射ID相关字段
+     * @param array<string, mixed> $data
+     */
+    private function mapIdFields(array $data, Document $entity): void
+    {
         // 处理远程ID
         if (isset($data['id'])) {
             if (is_numeric($data['id'])) {
@@ -558,8 +572,14 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
         } elseif (isset($data['dataset_id'])) {
             $entity->setDatasetId($data['dataset_id']);
         }
+    }
 
-        // 基本字段
+    /**
+     * 映射基本字段
+     * @param array<string, mixed> $data
+     */
+    private function mapBasicFields(array $data, Document $entity): void
+    {
         if (isset($data['name'])) {
             $entity->setName($data['name']);
         }
@@ -579,8 +599,14 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
         } elseif (isset($data['parse_status'])) {
             $entity->setStatus($data['parse_status']);
         }
+    }
 
-        // 数值字段
+    /**
+     * 映射数值字段
+     * @param array<string, mixed> $data
+     */
+    private function mapNumericFields(array $data, Document $entity): void
+    {
         if (isset($data['size'])) {
             $entity->setSize((int) $data['size']);
         }
@@ -590,12 +616,10 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
             $entity->setChunkCount((int) $data['chunk_count']);
         }
 
-        // 进度字段（暂时没有对应字段，但保留逻辑）
+        // 进度字段
         if (isset($data['progress'])) {
             $entity->setProgress((float) $data['progress']);
         }
-
-        return $entity;
     }
 
     /**
@@ -607,7 +631,7 @@ final class RAGFlowDocumentCrudController extends AbstractCrudController
         return [
             'id' => $entity->getId(),
             'remoteId' => $entity->getRemoteId(),
-            'datasetId' => $entity->getDatasetId() ?? ($entity->getDataset() ? $entity->getDataset()->getId() : null),
+            'datasetId' => $entity->getDatasetId() ?? (null !== $entity->getDataset() ? $entity->getDataset()->getId() : null),
             'name' => $entity->getName(),
             'filename' => $entity->getFilename(),
             'type' => $entity->getType(),

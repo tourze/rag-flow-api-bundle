@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\RetrieveChunksRequest;
 
 /**
  * @internal
  */
 #[CoversClass(RetrieveChunksRequest::class)]
-class RetrieveChunksRequestTest extends TestCase
+class RetrieveChunksRequestTest extends RequestTestCase
 {
     public function testRequestPath(): void
     {

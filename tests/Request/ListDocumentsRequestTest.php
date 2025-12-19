@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tourze\RAGFlowApiBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Tourze\RAGFlowApiBundle\Request\ListDocumentsRequest;
 
 /**
  * @internal
  */
 #[CoversClass(ListDocumentsRequest::class)]
-class ListDocumentsRequestTest extends TestCase
+class ListDocumentsRequestTest extends RequestTestCase
 {
     public function testRequestPath(): void
     {

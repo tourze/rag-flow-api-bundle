@@ -32,6 +32,58 @@ final class DocumentUpdateServiceTest extends AbstractIntegrationTestCase
         $this->assertInstanceOf(DocumentUpdateService::class, $this->updateService);
     }
 
+    public function testUpdateDocumentFromData(): void
+    {
+        $instance = new RAGFlowInstance();
+        $instance->setName('Update Instance');
+        $instance->setApiUrl('https://update.example.com/api');
+        $instance->setApiKey('update-key');
+
+        $dataset = new Dataset();
+        $dataset->setName('Update Dataset');
+        $dataset->setRagFlowInstance($instance);
+
+        $this->persistAndFlush($instance);
+        $this->persistAndFlush($dataset);
+
+        $document = new Document();
+        $document->setName('Original Name');
+        $document->setFilename('original.txt');
+        $document->setType('txt');
+        $document->setStatus(DocumentStatus::PENDING);
+        $document->setDataset($dataset);
+        $document->setSummary('Original Summary');
+        $document->setLanguage('en');
+
+        $this->persistAndFlush($document);
+
+        $originalUpdateTime = $document->getUpdateTime();
+
+        // 等待一小段时间确保时间戳不同
+        sleep(1);
+
+        $updateData = [
+            'name' => 'Updated Name',
+            'summary' => 'Updated Summary',
+            'language' => 'zh',
+        ];
+
+        $this->updateService->updateDocumentFromData($document, $updateData);
+
+        $this->assertSame('Updated Name', $document->getName());
+        $this->assertSame('Updated Summary', $document->getSummary());
+        $this->assertSame('zh', $document->getLanguage());
+
+        // 验证时间戳已更新
+        $newUpdateTime = $document->getUpdateTime();
+        $this->assertNotNull($newUpdateTime);
+        if (null !== $originalUpdateTime) {
+            $this->assertGreaterThanOrEqual($originalUpdateTime->getTimestamp(), $newUpdateTime->getTimestamp());
+        }
+
+        $this->assertNotNull($document->getLastSyncTime());
+    }
+
     public function test更新全部字段成功(): void
     {
         $instance = new RAGFlowInstance();

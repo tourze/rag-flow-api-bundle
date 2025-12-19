@@ -29,11 +29,6 @@ class RAGFlowApiBundle extends Bundle implements BundleDependencyInterface
         ];
     }
 
-    public function getPath(): string
-    {
-        return \dirname(__DIR__);
-    }
-
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tourze\RAGFlowApiBundle\Service;
 
 use Tourze\RAGFlowApiBundle\Context\DocumentRequestContext;
+use Tourze\RAGFlowApiBundle\DTO\ActionResult;
 use Tourze\RAGFlowApiBundle\Entity\Document;
 use Tourze\RAGFlowApiBundle\Enum\DocumentStatus;
 use Tourze\RAGFlowApiBundle\Repository\DocumentRepository;
